@@ -13,9 +13,13 @@
 </head>
 <body>
     <div class="container">
-        <h2>Test Barcode Scanner</h2>
+        <h2>Html5-QRCode API Test Scanner</h2>
         <p><a href="index.html" style="color: #007bff;">← Back to Quagga API scanner</a></p>
-        <div id="reader"></div>
+        <div style="background: #f8d7da; padding: 10px; margin: 10px; border-radius: 5px;">
+          <strong>🔧 Debug Mode:</strong> Basic scanner for troubleshooting. Use when others fail.
+        </div>
+        <div id="reader" style="position: relative;"></div>
+        <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 300px; height: 100px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
         <input type="text" id="result" placeholder="Scanned result will appear here" readonly>
         <p id="status">Loading scanner...</p>
     </div>

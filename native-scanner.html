@@ -16,12 +16,18 @@
 </head>
 <body>
   <div class="container">
-    <h2>Native Barcode Scanner</h2>
+    <h2>Native Barcode Detection API Scanner</h2>
     <p><a href="index.html">← Back to Quagga API scanner</a></p>
     
+    <div style="background: #e8f5e8; padding: 10px; margin: 10px; border-radius: 5px;">
+      <strong>🏆 Best Option:</strong> Uses browser's built-in ML detection. Fastest and most accurate!
+    </div>
     <div id="support-check"></div>
     
-    <video id="video" autoplay muted playsinline></video>
+    <div style="position: relative; display: inline-block;">
+      <video id="video" autoplay muted playsinline></video>
+      <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 300px; height: 100px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
+    </div>
     
     <input type="text" id="result" placeholder="Scanned result appears here" readonly>
     <button id="start-btn" onclick="startScanner()">Start Scanner</button>
