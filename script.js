@@ -19,32 +19,19 @@ function startScanner() {
       type: "LiveStream",
       target: document.querySelector('#scanner-container'),
       constraints: {
-        width: { min: 640 },
-        height: { min: 480 },
-        facingMode: "environment",
-        aspectRatio: { min: 1, max: 2 }
+        width: 640,
+        height: 480,
+        facingMode: "environment"
       }
     },
     locator: {
       patchSize: "medium",
       halfSample: true
     },
-    numOfWorkers: 2,
-    frequency: 10,
+    numOfWorkers: 1,
     decoder: {
-      readers: [
-        "code_128_reader",
-        "ean_reader", 
-        "ean_8_reader",
-        "code_39_reader",
-        "code_39_vin_reader",
-        "codabar_reader",
-        "upc_reader",
-        "upc_e_reader",
-        "i2of5_reader"
-      ]
-    },
-    locate: true
+      readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader"]
+    }
   }, function(err) {
     if (err) {
       statusEl.textContent = 'Camera error: ' + err.message;
