@@ -8,6 +8,12 @@
     body { margin: 0; font-family: Arial, sans-serif; }
     .container { padding: 20px; text-align: center; }
     #video { width: 500px; height: 200px; max-width: 90vw; border: 2px solid #007bff; object-fit: cover; }
+    .settings-tab { background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; margin: 15px 0; }
+    .settings-header { padding: 10px 15px; background: #e9ecef; border-radius: 8px 8px 0 0; cursor: pointer; font-weight: bold; }
+    .settings-content { padding: 15px; display: none; }
+    .control-group { margin: 10px 0; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    input[type="range"] { width: 150px; }
+    .settings-content button { padding: 8px 12px; margin: 5px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; }
     input { width: 90%; padding: 15px; font-size: 18px; margin: 10px; }
     button { width: 90%; padding: 15px; font-size: 18px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; }
     .workflow-status { background: #f8f9fa; padding: 15px; margin: 15px; border-radius: 8px; }
@@ -26,6 +32,26 @@
     
     <div style="background: #e8f5e8; padding: 10px; margin: 10px; border-radius: 5px;">
       <strong>🏆 Using Best Scanner:</strong> Native Barcode Detection API for fastest, most accurate scanning
+    </div>
+    
+    <div class="settings-tab">
+      <div class="settings-header" onclick="toggleSettings()">
+        ⚙️ Camera Settings (Click to expand)
+      </div>
+      <div class="settings-content" id="settings-content">
+        <div class="control-group">
+          <label>Zoom:</label>
+          <input type="range" id="zoom" min="1" max="10" step="0.1" value="1">
+          <span id="zoom-value">1x</span>
+        </div>
+        <div class="control-group">
+          <button onclick="resetZoom()">Reset Zoom</button>
+          <button onclick="toggleTorch()">Toggle Flashlight</button>
+        </div>
+        <div style="font-size: 12px; color: #666; margin-top: 10px;">
+          Available controls: <span id="capabilities">Start scanner to see capabilities</span>
+        </div>
+      </div>
     </div>
     
     <div class="workflow-status" id="workflow-status">
@@ -68,6 +94,7 @@
     let barcodeDetector;
     let isScanning = false;
     let stream;
+    let videoTrack;
     let scanInterval;
     let lastScanTime = 0;
     const SCAN_COOLDOWN = 750; // 750ms between scans
@@ -197,6 +224,10 @@
         
         const video = document.getElementById('video');
         video.srcObject = stream;
+        videoTrack = stream.getVideoTracks()[0];
+        
+        // Setup camera controls
+        setupCameraControls();
         
         // Start scanning loop with rate limiting
         scanInterval = setInterval(async () => {
@@ -241,6 +272,74 @@
       isScanning = false;
       document.getElementById('start-btn').style.display = 'block';
       document.getElementById('stop-btn').style.display = 'none';
+    }
+    
+    function toggleSettings() {
+      const content = document.getElementById('settings-content');
+      content.style.display = content.style.display === 'block' ? 'none' : 'block';
+    }
+    
+    function setupCameraControls() {
+      if (!videoTrack) return;
+      
+      const capabilities = videoTrack.getCapabilities();
+      document.getElementById('capabilities').textContent = Object.keys(capabilities).join(', ') || 'None available';
+      
+      // Setup zoom if available
+      if (capabilities.zoom) {
+        const zoomSlider = document.getElementById('zoom');
+        zoomSlider.min = capabilities.zoom.min;
+        zoomSlider.max = capabilities.zoom.max;
+        zoomSlider.step = capabilities.zoom.step || 0.1;
+        zoomSlider.value = capabilities.zoom.min;
+        
+        zoomSlider.addEventListener('input', async (e) => {
+          try {
+            await videoTrack.applyConstraints({
+              advanced: [{ zoom: parseFloat(e.target.value) }]
+            });
+            document.getElementById('zoom-value').textContent = e.target.value + 'x';
+          } catch (err) {
+            console.error('Zoom error:', err);
+          }
+        });
+      }
+    }
+    
+    async function resetZoom() {
+      if (!videoTrack) return;
+      
+      try {
+        const capabilities = videoTrack.getCapabilities();
+        const minZoom = capabilities.zoom ? capabilities.zoom.min : 1;
+        
+        await videoTrack.applyConstraints({
+          advanced: [{ zoom: minZoom }]
+        });
+        
+        document.getElementById('zoom').value = minZoom;
+        document.getElementById('zoom-value').textContent = minZoom + 'x';
+      } catch (err) {
+        console.error('Reset zoom error:', err);
+      }
+    }
+    
+    async function toggleTorch() {
+      if (!videoTrack) return;
+      
+      try {
+        const capabilities = videoTrack.getCapabilities();
+        if (capabilities.torch) {
+          const settings = videoTrack.getSettings();
+          await videoTrack.applyConstraints({
+            advanced: [{ torch: !settings.torch }]
+          });
+        } else {
+          alert('Flashlight not supported on this device');
+        }
+      } catch (err) {
+        console.error('Torch error:', err);
+      }
     }
   </script>
 </body>

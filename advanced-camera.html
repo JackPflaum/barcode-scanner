@@ -22,7 +22,7 @@
     <p><a href="index.html">← Back to Scanner Selection</a></p>
     
     <div style="background: #fff3cd; padding: 10px; margin: 10px; border-radius: 5px;">
-      <strong>📷 Camera Controls:</strong> Zoom, focus, brightness, and more (Chrome/Edge recommended)
+      <strong>📷 Camera Controls:</strong> Digital zoom and flashlight (Chrome/Edge recommended)
     </div>
     
     <div style="position: relative; display: inline-block;">
@@ -39,26 +39,10 @@
         <span id="zoom-value">1x</span>
       </div>
       
-      <div class="control-group">
-        <label>Focus Distance:</label>
-        <input type="range" id="focus" min="0" max="1" step="0.01" value="0.5">
-        <span id="focus-value">0.5</span>
-      </div>
+
       
       <div class="control-group">
-        <label>Brightness:</label>
-        <input type="range" id="brightness" min="0" max="2" step="0.1" value="1">
-        <span id="brightness-value">1.0</span>
-      </div>
-      
-      <div class="control-group">
-        <label>Contrast:</label>
-        <input type="range" id="contrast" min="0" max="2" step="0.1" value="1">
-        <span id="contrast-value">1.0</span>
-      </div>
-      
-      <div class="control-group">
-        <button onclick="resetControls()">Reset All</button>
+        <button onclick="resetControls()">Reset Zoom</button>
         <button onclick="toggleTorch()">Toggle Flashlight</button>
       </div>
     </div>
@@ -171,62 +155,7 @@
         });
       }
       
-      // Setup focus control
-      if (capabilities.focusDistance) {
-        const focusSlider = document.getElementById('focus');
-        focusSlider.min = capabilities.focusDistance.min;
-        focusSlider.max = capabilities.focusDistance.max;
-        focusSlider.step = capabilities.focusDistance.step || 0.01;
-        
-        focusSlider.addEventListener('input', async (e) => {
-          try {
-            await videoTrack.applyConstraints({
-              advanced: [{ focusDistance: parseFloat(e.target.value) }]
-            });
-            document.getElementById('focus-value').textContent = e.target.value;
-          } catch (err) {
-            console.error('Focus error:', err);
-          }
-        });
-      }
-      
-      // Setup brightness control
-      if (capabilities.brightness) {
-        const brightnessSlider = document.getElementById('brightness');
-        brightnessSlider.min = capabilities.brightness.min;
-        brightnessSlider.max = capabilities.brightness.max;
-        brightnessSlider.step = capabilities.brightness.step || 0.1;
-        
-        brightnessSlider.addEventListener('input', async (e) => {
-          try {
-            await videoTrack.applyConstraints({
-              advanced: [{ brightness: parseFloat(e.target.value) }]
-            });
-            document.getElementById('brightness-value').textContent = e.target.value;
-          } catch (err) {
-            console.error('Brightness error:', err);
-          }
-        });
-      }
-      
-      // Setup contrast control
-      if (capabilities.contrast) {
-        const contrastSlider = document.getElementById('contrast');
-        contrastSlider.min = capabilities.contrast.min;
-        contrastSlider.max = capabilities.contrast.max;
-        contrastSlider.step = capabilities.contrast.step || 0.1;
-        
-        contrastSlider.addEventListener('input', async (e) => {
-          try {
-            await videoTrack.applyConstraints({
-              advanced: [{ contrast: parseFloat(e.target.value) }]
-            });
-            document.getElementById('contrast-value').textContent = e.target.value;
-          } catch (err) {
-            console.error('Contrast error:', err);
-          }
-        });
-      }
+
     }
     
     async function resetControls() {
@@ -237,17 +166,9 @@
           advanced: [{}] // Reset to defaults
         });
         
-        // Reset sliders
+        // Reset zoom slider
         document.getElementById('zoom').value = 1;
-        document.getElementById('focus').value = 0.5;
-        document.getElementById('brightness').value = 1;
-        document.getElementById('contrast').value = 1;
-        
-        // Update displays
         document.getElementById('zoom-value').textContent = '1x';
-        document.getElementById('focus-value').textContent = '0.5';
-        document.getElementById('brightness-value').textContent = '1.0';
-        document.getElementById('contrast-value').textContent = '1.0';
         
       } catch (err) {
         console.error('Reset error:', err);
