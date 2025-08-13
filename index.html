@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barcode Scanner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="camera-section">
+      <div id="scanner-container"></div>
+    </div>
+    <div class="info-section">
+      <h2>Barcode Scanner</h2>
+      <input type="text" id="result" placeholder="Scanned code will appear here" readonly />
+      <p id="status">Press "Start Scan" to begin</p>
+      <button id="start-btn">Start Scan</button>
+      <button id="stop-btn" style="display:none;">Stop Scan</button>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
