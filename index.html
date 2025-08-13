@@ -3,26 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Barcode Scanner</title>
+  <title>Barcode Scanner Selection</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
-    <div class="camera-section">
-      <div id="scanner-container"></div>
-      <div class="scan-guide">
-        <div class="scan-box"></div>
-        <div class="scan-indicators">
-          <div class="indicator left-indicator"></div>
-          <div class="indicator right-indicator"></div>
-        </div>
-        <p>Position barcode within the box</p>
-      </div>
-    </div>
     <div class="info-section">
-      <h2>Quagga API Scanner</h2>
+      <h2>Barcode Scanner Options</h2>
       <div style="background: #f8f9fa; padding: 15px; margin: 15px 0; border-radius: 8px;">
-        <h3>📱 Try These Scanners (Ranked by Reliability)</h3>
+        <h3>📱 Choose Your Scanner (Ranked by Reliability)</h3>
         <p><strong>🥇 Best:</strong> <a href="native-scanner.html" style="color: #007bff;">Native Barcode API</a> - Fastest, built-in browser tech (Chrome/Edge only)</p>
         <p><strong>🥈 Good:</strong> <a href="basic-scanner.html" style="color: #007bff;">ZXing API</a> - High resolution, reliable barcode detection</p>
         <p><strong>🥉 Backup:</strong> <a href="simple-scanner.html" style="color: #007bff;">Html5-QRCode (Simple)</a> - Most compatible, works on all browsers</p>
@@ -30,14 +19,9 @@
         <p><strong>📋 Test:</strong> <a href="barcode-test.html" style="color: #007bff;">Sample Barcodes</a> - Practice with test patterns</p>
         <p><strong>🏢 Workflow:</strong> <a href="workflow-scanner.html" style="color: #007bff;">Warehouse Workflow</a> - Test picking process</p>
       </div>
-      <input type="text" id="result" placeholder="Scanned code will appear here" readonly />
-      <p id="status">Press "Start Scan" to begin</p>
-      <button id="start-btn">Start Scan</button>
-      <button id="stop-btn" style="display:none;">Stop Scan</button>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
-  <script src="script.js"></script>
+
 </body>
 </html>
