@@ -34,9 +34,12 @@ function startScanner() {
     }
   }, function(err) {
     if (err) {
+      console.error('Quagga init error:', err);
       statusEl.textContent = 'Camera error: ' + err.message;
       return;
     }
+    
+    console.log('Quagga initialized successfully');
     
     Quagga.start();
     scanning = true;
@@ -46,9 +49,17 @@ function startScanner() {
   });
 
   Quagga.onDetected(function(data) {
+    console.log('Barcode detected:', data.codeResult.code);
+    console.log('Full data:', data);
     result.value = data.codeResult.code;
     statusEl.textContent = 'Scan successful ✅';
     if (navigator.vibrate) navigator.vibrate(200);
+  });
+  
+  Quagga.onProcessed(function(result) {
+    if (result && result.boxes) {
+      console.log('Processing frame, found', result.boxes.length, 'potential barcodes');
+    }
   });
 }
 

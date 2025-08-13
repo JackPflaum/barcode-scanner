@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Scanner</title>
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; }
+        .container { padding: 20px; }
+        #reader { width: 100%; max-width: 500px; margin: 20px auto; }
+        #result { width: 100%; padding: 10px; margin: 10px 0; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Test Barcode Scanner</h2>
+        <p><a href="index.html" style="color: #007bff;">← Back to main scanner</a></p>
+        <div id="reader"></div>
+        <input type="text" id="result" placeholder="Scanned result will appear here" readonly>
+        <p id="status">Loading scanner...</p>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        const html5QrCode = new Html5Qrcode("reader");
+        const resultInput = document.getElementById('result');
+        const status = document.getElementById('status');
+
+        html5QrCode.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: { width: 250, height: 100 }
+            },
+            (decodedText, decodedResult) => {
+                console.log('Scanned:', decodedText);
+                resultInput.value = decodedText;
+                status.textContent = 'Scan successful!';
+            },
+            (errorMessage) => {
+                // Ignore frequent scanning errors
+            }
+        ).then(() => {
+            status.textContent = 'Scanner ready - point at barcode';
+        }).catch(err => {
+            console.error('Scanner error:', err);
+            status.textContent = 'Scanner failed to start';
+        });
+    </script>
+</body>
+</html>
