@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barcode Size Test</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; padding: 20px; }
+    .size-section { margin: 30px 0; padding: 20px; border: 1px solid #ddd; page-break-inside: avoid; }
+    .barcode-row { display: flex; flex-wrap: wrap; gap: 40px; margin: 25px 0; align-items: center; justify-content: space-around; }
+    .barcode-item { text-align: center; margin: 20px; }
+    .size-label { font-weight: bold; color: #007bff; margin-bottom: 10px; }
+    h2 { color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px; }
+    .print-note { background: #fff3cd; padding: 15px; margin: 20px 0; border-radius: 5px; }
+    @media print {
+      body { font-size: 12px; }
+      .print-note { display: none; }
+      
+      /* Force exact image sizes for printing */
+      img {
+        max-width: none !important;
+        width: auto !important;
+        height: auto !important;
+        transform: none !important;
+      }
+      
+      .barcode-item img {
+        display: block;
+        margin: 0 auto;
+      }
+      
+      /* Prevent page breaks within barcode sections */
+      .size-section {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      
+      .barcode-row {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Barcode Size Test Sheet</h1>
+  <p><a href="index.html">← Back to Scanner Selection</a></p>
+  
+  <div class="print-note">
+    <strong>📄 Print Instructions:</strong><br>
+    • <strong>CRITICAL:</strong> Set print scale to <strong>100%</strong> (no fit to page)<br>
+    • In Chrome: More tools → Print → More settings → Scale: 100%<br>
+    • Disable "Fit to page" or "Shrink to fit"<br>
+    • Use standard 8.5x11" paper<br>
+    • Test scanning from medium to smallest to find minimum readable size
+  </div>
+
+  <!-- 1D Barcodes - Medium to Small Sizes -->
+  <div class="size-section">
+    <h2>1D Barcodes (Code 128: "TEST123")</h2>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Medium</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=TEST123&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=180&height=60" alt="Medium 1D">
+        <p>180x60px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Small</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=TEST123&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=140&height=45" alt="Small 1D">
+        <p>140x45px</p>
+      </div>
+    </div>
+
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Extra Small</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=TEST123&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=100&height=35" alt="XS 1D">
+        <p>100x35px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Tiny</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=TEST123&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=70&height=22" alt="Tiny 1D">
+        <p>70x22px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Micro</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=TEST123&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=50&height=18" alt="Micro 1D">
+        <p>50x18px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Ultra Small</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=TEST123&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=40&height=15" alt="Ultra Small 1D">
+        <p>40x15px</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- UPC Barcodes -->
+  <div class="size-section">
+    <h2>UPC-A Barcodes ("012345678905")</h2>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Medium</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=012345678905&code=UPCA&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=160&height=55" alt="Medium UPC">
+        <p>160x55px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Small</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=012345678905&code=UPCA&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=120&height=40" alt="Small UPC">
+        <p>120x40px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Extra Small</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=012345678905&code=UPCA&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=80&height=28" alt="XS UPC">
+        <p>80x28px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Tiny</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=012345678905&code=UPCA&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=60&height=22" alt="Tiny UPC">
+        <p>60x22px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Micro</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=012345678905&code=UPCA&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=45&height=18" alt="Micro UPC">
+        <p>45x18px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Ultra Small</div>
+        <img src="https://barcode.tec-it.com/barcode.ashx?data=012345678905&code=UPCA&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0&width=35&height=15" alt="Ultra Small UPC">
+        <p>35x15px</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2D QR Codes -->
+  <div class="size-section">
+    <h2>QR Codes ("QR-TEST-001")</h2>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Medium</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=QR-TEST-001" alt="Medium QR">
+        <p>120x120px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Small</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=QR-TEST-001" alt="Small QR">
+        <p>90x90px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Extra Small</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=65x65&data=QR-TEST-001" alt="XS QR">
+        <p>65x65px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Tiny</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=45x45&data=QR-TEST-001" alt="Tiny QR">
+        <p>45x45px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Micro</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=25x25&data=QR-TEST-001" alt="Micro QR">
+        <p>25x25px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Ultra Small</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=20x20&data=QR-TEST-001" alt="Ultra Small QR">
+        <p>20x20px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Nano</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=15x15&data=QR-TEST-001" alt="Nano QR">
+        <p>15x15px</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- URL QR Codes -->
+  <div class="size-section">
+    <h2>QR Codes with URL ("https://example.com/item/456")</h2>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Medium</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=https://example.com/item/456" alt="Medium URL QR">
+        <p>110x110px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Small</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=https://example.com/item/456" alt="Small URL QR">
+        <p>80x80px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Extra Small</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=50x50&data=https://example.com/item/456" alt="XS URL QR">
+        <p>50x50px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Tiny</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=35x35&data=https://example.com/item/456" alt="Tiny URL QR">
+        <p>35x35px</p>
+      </div>
+    </div>
+    
+    <div class="barcode-row">
+      <div class="barcode-item">
+        <div class="size-label">Micro</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=25x25&data=https://example.com/item/456" alt="Micro URL QR">
+        <p>25x25px</p>
+      </div>
+      
+      <div class="barcode-item">
+        <div class="size-label">Ultra Small</div>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=20x20&data=https://example.com/item/456" alt="Ultra Small URL QR">
+        <p>20x20px</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="print-note">
+    <strong>📝 Testing Notes:</strong><br>
+    • Test each size with your preferred scanner<br>
+    • Note lighting conditions that work best<br>
+    • Record optimal scanning distance for each size<br>
+    • Consider that smaller barcodes need steadier hands and better focus
+  </div>
+
+</body>
+</html>
