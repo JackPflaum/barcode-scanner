@@ -35,7 +35,7 @@
     
     <div style="position: relative; display: inline-block;">
       <video id="video" autoplay muted playsinline></video>
-      <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 350px; height: 80px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
+      <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 250px; height: 150px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
     </div>
     
     <input type="text" id="result" placeholder="Scanned result appears here" readonly>
@@ -49,14 +49,16 @@
   </div>
 
   <script>
-    // Dummy order data
+    // Dummy order data with mixed 1D and 2D barcodes
     const orders = {
       "012345678905": {
         orderId: "ORD-001",
         items: [
-          { barcode: "HELLO123", name: "Product A", quantity: 2, found: 0 },
-          { barcode: "4012345678901", name: "Product B", quantity: 1, found: 0 },
-          { barcode: "TEST123", name: "Product C", quantity: 3, found: 0 }
+          { barcode: "HELLO123", name: "Product A (1D)", quantity: 2, found: 0 },
+          { barcode: "4012345678901", name: "Product B (1D)", quantity: 1, found: 0 },
+          { barcode: "TEST123", name: "Product C (1D)", quantity: 1, found: 0 },
+          { barcode: "QR-ITEM-001", name: "Product D (2D)", quantity: 2, found: 0 },
+          { barcode: "https://example.com/item/123", name: "Product E (2D)", quantity: 1, found: 0 }
         ]
       }
     };
@@ -181,7 +183,7 @@
       try {
         // Create barcode detector
         barcodeDetector = new BarcodeDetector({
-          formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e']
+          formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix']
         });
         
         // Get camera stream

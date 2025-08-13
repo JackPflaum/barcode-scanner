@@ -31,7 +31,7 @@ function startScanner() {
     },
     numOfWorkers: 1,
     decoder: {
-      readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "upc_reader", "upc_e_reader"]
+      readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader", "upc_reader", "upc_e_reader", "qr_reader"]
     }
   }, function(err) {
     if (err) {

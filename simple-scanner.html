@@ -22,7 +22,7 @@
     </div>
     
     <div id="reader" style="position: relative;"></div>
-    <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 300px; height: 100px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
+    <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 250px; height: 150px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
     <input type="text" id="result" placeholder="Scanned result appears here" readonly>
     <button id="start-btn" onclick="startScanner()">Start Scanner</button>
     <button id="stop-btn" onclick="stopScanner()" style="display:none;">Stop Scanner</button>
@@ -56,7 +56,7 @@
         { facingMode: "environment" },
         {
           fps: 10,
-          qrbox: { width: 300, height: 100 },
+          qrbox: { width: 250, height: 150 },
           aspectRatio: 1.0
         },
         (decodedText, decodedResult) => {
