@@ -22,8 +22,7 @@ function startScanner() {
       constraints: {
         width: 640,
         height: 480,
-        facingMode: "environment",
-        focusMode: "auto"
+        facingMode: "environment"
       }
     },
     locator: {
