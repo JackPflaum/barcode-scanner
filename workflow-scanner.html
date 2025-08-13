@@ -7,7 +7,7 @@
   <style>
     body { margin: 0; font-family: Arial, sans-serif; }
     .container { padding: 20px; text-align: center; }
-    #video { width: 400px; height: 250px; max-width: 90vw; border: 2px solid #007bff; }
+    #video { width: 500px; height: 200px; max-width: 90vw; border: 2px solid #007bff; object-fit: cover; }
     input { width: 90%; padding: 15px; font-size: 18px; margin: 10px; }
     button { width: 90%; padding: 15px; font-size: 18px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; }
     .workflow-status { background: #f8f9fa; padding: 15px; margin: 15px; border-radius: 8px; }
@@ -35,7 +35,7 @@
     
     <div style="position: relative; display: inline-block;">
       <video id="video" autoplay muted playsinline></video>
-      <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 300px; height: 100px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
+      <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 350px; height: 80px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
     </div>
     
     <input type="text" id="result" placeholder="Scanned result appears here" readonly>
@@ -67,6 +67,8 @@
     let isScanning = false;
     let stream;
     let scanInterval;
+    let lastScanTime = 0;
+    const SCAN_COOLDOWN = 750; // 750ms between scans
     
     function updateWorkflowStatus(message, type = "info") {
       const statusDiv = document.getElementById('workflow-status');
@@ -98,55 +100,69 @@
     function handleBarcodeScan(barcode) {
       document.getElementById('result').value = barcode;
       
+      // Show cooldown message
+      const statusDiv = document.getElementById('workflow-status');
+      const originalContent = statusDiv.innerHTML;
+      statusDiv.innerHTML = `<h3>⏳ Processing... Please wait</h3>`;
+      statusDiv.className = 'workflow-status';
+      
+      setTimeout(() => {
+        statusDiv.innerHTML = originalContent;
+      }, 750);
+      
       if (workflowStep === "picking_slip") {
         // Step 1: Check if it's a picking slip
-        if (orders[barcode]) {
-          currentOrder = orders[barcode];
-          workflowStep = "items";
-          updateWorkflowStatus(`
-            <h3>✅ Order Loaded: ${currentOrder.orderId}</h3>
-            <p>Now scan items from the warehouse</p>
-          `, "success");
-          displayOrderItems();
-        } else {
-          updateWorkflowStatus(`
-            <h3>❌ Invalid Picking Slip</h3>
-            <p>Barcode: ${barcode} not found. Try: 012345678905</p>
-          `, "error");
-        }
+        setTimeout(() => {
+          if (orders[barcode]) {
+            currentOrder = orders[barcode];
+            workflowStep = "items";
+            updateWorkflowStatus(`
+              <h3>✅ Order Loaded: ${currentOrder.orderId}</h3>
+              <p>Now scan items from the warehouse</p>
+            `, "success");
+            displayOrderItems();
+          } else {
+            updateWorkflowStatus(`
+              <h3>❌ Invalid Picking Slip</h3>
+              <p>Barcode: ${barcode} not found. Try: 012345678905</p>
+            `, "error");
+          }
+        }, 750);
       } else if (workflowStep === "items") {
         // Step 2: Check if scanned item is in the order
         const item = currentOrder.items.find(i => i.barcode === barcode);
         
-        if (item) {
-          if (item.found < item.quantity) {
-            item.found++;
-            updateWorkflowStatus(`
-              <h3>✅ Item Found!</h3>
-              <p>${item.name} - ${item.found}/${item.quantity} collected</p>
-            `, "success");
-            displayOrderItems();
-            
-            // Check if order is complete
-            const allFound = currentOrder.items.every(i => i.found >= i.quantity);
-            if (allFound) {
+        setTimeout(() => {
+          if (item) {
+            if (item.found < item.quantity) {
+              item.found++;
               updateWorkflowStatus(`
-                <h3>🎉 Order Complete!</h3>
-                <p>All items collected for order ${currentOrder.orderId}</p>
+                <h3>✅ Item Found!</h3>
+                <p>${item.name} - ${item.found}/${item.quantity} collected</p>
               `, "success");
+              displayOrderItems();
+              
+              // Check if order is complete
+              const allFound = currentOrder.items.every(i => i.found >= i.quantity);
+              if (allFound) {
+                updateWorkflowStatus(`
+                  <h3>🎉 Order Complete!</h3>
+                  <p>All items collected for order ${currentOrder.orderId}</p>
+                `, "success");
+              }
+            } else {
+              updateWorkflowStatus(`
+                <h3>⚠️ Item Already Complete</h3>
+                <p>${item.name} - Already collected ${item.quantity}/${item.quantity}</p>
+              `, "error");
             }
           } else {
             updateWorkflowStatus(`
-              <h3>⚠️ Item Already Complete</h3>
-              <p>${item.name} - Already collected ${item.quantity}/${item.quantity}</p>
+              <h3>❌ Item Not in Order</h3>
+              <p>Barcode: ${barcode} is not required for this order</p>
             `, "error");
           }
-        } else {
-          updateWorkflowStatus(`
-            <h3>❌ Item Not in Order</h3>
-            <p>Barcode: ${barcode} is not required for this order</p>
-          `, "error");
-        }
+        }, 750);}
       }
     }
     
@@ -180,20 +196,26 @@
         const video = document.getElementById('video');
         video.srcObject = stream;
         
-        // Start scanning loop
+        // Start scanning loop with rate limiting
         scanInterval = setInterval(async () => {
           try {
+            const now = Date.now();
+            if (now - lastScanTime < SCAN_COOLDOWN) {
+              return; // Skip if within cooldown period
+            }
+            
             const barcodes = await barcodeDetector.detect(video);
             
             if (barcodes.length > 0) {
               const barcode = barcodes[0];
+              lastScanTime = now;
               handleBarcodeScan(barcode.rawValue);
               if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
             }
           } catch (err) {
             console.error('Detection error:', err);
           }
-        }, 100); // Check every 100ms
+        }, 200); // Check every 200ms
         
         isScanning = true;
         document.getElementById('start-btn').style.display = 'none';
