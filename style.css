@@ -7,9 +7,11 @@ body {
 .container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  max-height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .camera-section {
@@ -39,12 +41,11 @@ body {
 }
 
 .info-section {
-  flex: 0 0 auto;
   padding: 15px;
   background: #f8f9fa;
-  max-height: 40vh;
-  overflow-y: auto;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 600px;
 }
 
 input {
