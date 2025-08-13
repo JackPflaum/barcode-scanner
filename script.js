@@ -11,6 +11,7 @@ stopBtn.addEventListener('click', stopScanner);
 function startScanner() {
   if (scanning) return;
   
+  result.value = ''; // Clear previous scan result
   statusEl.textContent = 'Starting camera...'
   
   Quagga.init({
@@ -21,7 +22,13 @@ function startScanner() {
       constraints: {
         width: 640,
         height: 480,
-        facingMode: "environment"
+        facingMode: "environment",
+        focusMode: "continuous",
+        advanced: [{
+          focusMode: "continuous"
+        }, {
+          focusDistance: { ideal: 0.3 }
+        }]
       }
     },
     locator: {
