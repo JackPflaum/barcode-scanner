@@ -23,12 +23,7 @@ function startScanner() {
         width: 640,
         height: 480,
         facingMode: "environment",
-        focusMode: "continuous",
-        advanced: [{
-          focusMode: "continuous"
-        }, {
-          focusDistance: { ideal: 0.3 }
-        }]
+        focusMode: "auto"
       }
     },
     locator: {

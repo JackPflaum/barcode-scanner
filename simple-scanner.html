@@ -49,7 +49,10 @@
       html5QrCode = new Html5Qrcode("reader");
       
       html5QrCode.start(
-        { facingMode: "environment" },
+        { 
+          facingMode: "environment",
+          focusMode: "auto"
+        },
         {
           fps: 10,
           qrbox: { width: 250, height: 100 },
