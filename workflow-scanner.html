@@ -21,8 +21,12 @@
 </head>
 <body>
   <div class="container">
-    <h2>Warehouse Workflow Scanner</h2>
+    <h2>Warehouse Workflow Scanner (Native API)</h2>
     <p><a href="index.html">← Back to Quagga API scanner</a></p>
+    
+    <div style="background: #e8f5e8; padding: 10px; margin: 10px; border-radius: 5px;">
+      <strong>🏆 Using Best Scanner:</strong> Native Barcode Detection API for fastest, most accurate scanning
+    </div>
     
     <div class="workflow-status" id="workflow-status">
       <h3>Step 1: Scan Picking Slip</h3>
@@ -44,7 +48,6 @@
     </div>
   </div>
 
-  <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
   <script>
     // Dummy order data
     const orders = {
@@ -60,9 +63,10 @@
     
     let currentOrder = null;
     let workflowStep = "picking_slip"; // "picking_slip" or "items"
-    let codeReader;
+    let barcodeDetector;
     let isScanning = false;
     let stream;
+    let scanInterval;
     
     function updateWorkflowStatus(message, type = "info") {
       const statusDiv = document.getElementById('workflow-status');
@@ -149,9 +153,22 @@
     async function startScanner() {
       if (isScanning) return;
       
+      // Check Native Barcode API support
+      if (!('BarcodeDetector' in window)) {
+        updateWorkflowStatus(`
+          <h3>⚠️ Browser Not Supported</h3>
+          <p>Use Chrome 83+ or Edge 83+ for best performance</p>
+        `, "error");
+        return;
+      }
+      
       try {
-        codeReader = new ZXing.BrowserMultiFormatReader();
+        // Create barcode detector
+        barcodeDetector = new BarcodeDetector({
+          formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e']
+        });
         
+        // Get camera stream
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
             facingMode: 'environment',
@@ -163,12 +180,20 @@
         const video = document.getElementById('video');
         video.srcObject = stream;
         
-        codeReader.decodeFromVideoElement(video, (result, err) => {
-          if (result) {
-            handleBarcodeScan(result.text);
-            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        // Start scanning loop
+        scanInterval = setInterval(async () => {
+          try {
+            const barcodes = await barcodeDetector.detect(video);
+            
+            if (barcodes.length > 0) {
+              const barcode = barcodes[0];
+              handleBarcodeScan(barcode.rawValue);
+              if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+            }
+          } catch (err) {
+            console.error('Detection error:', err);
           }
-        });
+        }, 100); // Check every 100ms
         
         isScanning = true;
         document.getElementById('start-btn').style.display = 'none';
@@ -182,8 +207,8 @@
     function stopScanner() {
       if (!isScanning) return;
       
-      if (codeReader) {
-        codeReader.reset();
+      if (scanInterval) {
+        clearInterval(scanInterval);
       }
       if (stream) {
         stream.getTracks().forEach(track => track.stop());
