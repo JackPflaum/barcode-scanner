@@ -56,9 +56,17 @@ function startScanner() {
     if (navigator.vibrate) navigator.vibrate(200);
   });
   
+  let frameCount = 0;
   Quagga.onProcessed(function(result) {
-    if (result && result.boxes) {
-      console.log('Processing frame, found', result.boxes.length, 'potential barcodes');
+    frameCount++;
+    if (frameCount % 30 === 0) { // Log every 30 frames to reduce spam
+      console.log('Processed', frameCount, 'frames');
+    }
+    if (result && result.boxes && result.boxes.length > 0) {
+      console.log('FOUND POTENTIAL BARCODE! Boxes:', result.boxes.length);
+    }
+    if (result && result.codeResult) {
+      console.log('Code result found but not finalized:', result.codeResult);
     }
   });
 }
