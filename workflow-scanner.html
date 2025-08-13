@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warehouse Workflow Scanner</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .container { padding: 20px; text-align: center; }
+    #video { width: 400px; height: 250px; max-width: 90vw; border: 2px solid #007bff; }
+    input { width: 90%; padding: 15px; font-size: 18px; margin: 10px; }
+    button { width: 90%; padding: 15px; font-size: 18px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; }
+    .workflow-status { background: #f8f9fa; padding: 15px; margin: 15px; border-radius: 8px; }
+    .success { background: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+    .error { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+    .order-items { text-align: left; margin: 15px 0; }
+    .item { padding: 8px; margin: 5px 0; border-radius: 4px; }
+    .item.found { background: #d4edda; }
+    .item.pending { background: #fff3cd; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Warehouse Workflow Scanner</h2>
+    <p><a href="index.html">← Back to Quagga API scanner</a></p>
+    
+    <div class="workflow-status" id="workflow-status">
+      <h3>Step 1: Scan Picking Slip</h3>
+      <p>Scan barcode: <strong>012345678905</strong> to load order</p>
+    </div>
+    
+    <div style="position: relative; display: inline-block;">
+      <video id="video" autoplay muted playsinline></video>
+      <div class="scan-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); pointer-events: none; border: 2px solid #00ff00; width: 300px; height: 100px; border-radius: 8px; background: rgba(0, 255, 0, 0.1);"></div>
+    </div>
+    
+    <input type="text" id="result" placeholder="Scanned result appears here" readonly>
+    <button id="start-btn" onclick="startScanner()">Start Scanner</button>
+    <button id="stop-btn" onclick="stopScanner()" style="display:none;">Stop Scanner</button>
+    
+    <div class="order-items" id="order-items" style="display:none;">
+      <h3>Order Items to Pick:</h3>
+      <div id="items-list"></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/@zxing/library@latest/umd/index.min.js"></script>
+  <script>
+    // Dummy order data
+    const orders = {
+      "012345678905": {
+        orderId: "ORD-001",
+        items: [
+          { barcode: "HELLO123", name: "Product A", quantity: 2, found: 0 },
+          { barcode: "4012345678901", name: "Product B", quantity: 1, found: 0 },
+          { barcode: "TEST123", name: "Product C", quantity: 3, found: 0 }
+        ]
+      }
+    };
+    
+    let currentOrder = null;
+    let workflowStep = "picking_slip"; // "picking_slip" or "items"
+    let codeReader;
+    let isScanning = false;
+    let stream;
+    
+    function updateWorkflowStatus(message, type = "info") {
+      const statusDiv = document.getElementById('workflow-status');
+      statusDiv.className = `workflow-status ${type}`;
+      statusDiv.innerHTML = message;
+    }
+    
+    function displayOrderItems() {
+      if (!currentOrder) return;
+      
+      const itemsList = document.getElementById('items-list');
+      const orderDiv = document.getElementById('order-items');
+      
+      itemsList.innerHTML = '';
+      currentOrder.items.forEach(item => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = `item ${item.found >= item.quantity ? 'found' : 'pending'}`;
+        itemDiv.innerHTML = `
+          <strong>${item.name}</strong> (${item.barcode})<br>
+          Need: ${item.quantity} | Found: ${item.found} 
+          ${item.found >= item.quantity ? '✅' : '⏳'}
+        `;
+        itemsList.appendChild(itemDiv);
+      });
+      
+      orderDiv.style.display = 'block';
+    }
+    
+    function handleBarcodeScan(barcode) {
+      document.getElementById('result').value = barcode;
+      
+      if (workflowStep === "picking_slip") {
+        // Step 1: Check if it's a picking slip
+        if (orders[barcode]) {
+          currentOrder = orders[barcode];
+          workflowStep = "items";
+          updateWorkflowStatus(`
+            <h3>✅ Order Loaded: ${currentOrder.orderId}</h3>
+            <p>Now scan items from the warehouse</p>
+          `, "success");
+          displayOrderItems();
+        } else {
+          updateWorkflowStatus(`
+            <h3>❌ Invalid Picking Slip</h3>
+            <p>Barcode: ${barcode} not found. Try: 012345678905</p>
+          `, "error");
+        }
+      } else if (workflowStep === "items") {
+        // Step 2: Check if scanned item is in the order
+        const item = currentOrder.items.find(i => i.barcode === barcode);
+        
+        if (item) {
+          if (item.found < item.quantity) {
+            item.found++;
+            updateWorkflowStatus(`
+              <h3>✅ Item Found!</h3>
+              <p>${item.name} - ${item.found}/${item.quantity} collected</p>
+            `, "success");
+            displayOrderItems();
+            
+            // Check if order is complete
+            const allFound = currentOrder.items.every(i => i.found >= i.quantity);
+            if (allFound) {
+              updateWorkflowStatus(`
+                <h3>🎉 Order Complete!</h3>
+                <p>All items collected for order ${currentOrder.orderId}</p>
+              `, "success");
+            }
+          } else {
+            updateWorkflowStatus(`
+              <h3>⚠️ Item Already Complete</h3>
+              <p>${item.name} - Already collected ${item.quantity}/${item.quantity}</p>
+            `, "error");
+          }
+        } else {
+          updateWorkflowStatus(`
+            <h3>❌ Item Not in Order</h3>
+            <p>Barcode: ${barcode} is not required for this order</p>
+          `, "error");
+        }
+      }
+    }
+    
+    async function startScanner() {
+      if (isScanning) return;
+      
+      try {
+        codeReader = new ZXing.BrowserMultiFormatReader();
+        
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+        
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        
+        codeReader.decodeFromVideoElement(video, (result, err) => {
+          if (result) {
+            handleBarcodeScan(result.text);
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+          }
+        });
+        
+        isScanning = true;
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('stop-btn').style.display = 'block';
+        
+      } catch (err) {
+        updateWorkflowStatus(`ERROR: ${err.message}`, "error");
+      }
+    }
+    
+    function stopScanner() {
+      if (!isScanning) return;
+      
+      if (codeReader) {
+        codeReader.reset();
+      }
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      isScanning = false;
+      document.getElementById('start-btn').style.display = 'block';
+      document.getElementById('stop-btn').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
