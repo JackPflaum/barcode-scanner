@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Native Barcode Scanner</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    .container { padding: 20px; text-align: center; }
+    #video { width: 100%; max-width: 400px; height: 300px; border: 2px solid #007bff; }
+    input { width: 90%; padding: 15px; font-size: 18px; margin: 10px; }
+    button { width: 90%; padding: 15px; font-size: 18px; margin: 10px; background: #007bff; color: white; border: none; border-radius: 5px; }
+    #debug { background: #f0f0f0; padding: 10px; margin: 10px; font-size: 12px; text-align: left; }
+    .warning { background: #ffeecc; padding: 10px; margin: 10px; border-left: 4px solid #ff9900; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Native Barcode Scanner</h2>
+    <p><a href="index.html">← Back to main scanner</a></p>
+    
+    <div id="support-check"></div>
+    
+    <video id="video" autoplay muted playsinline></video>
+    
+    <input type="text" id="result" placeholder="Scanned result appears here" readonly>
+    <button id="start-btn" onclick="startScanner()">Start Scanner</button>
+    <button id="stop-btn" onclick="stopScanner()" style="display:none;">Stop Scanner</button>
+    
+    <div id="debug">
+      <strong>Debug Info:</strong><br>
+      <span id="debug-text">Checking browser support...</span>
+    </div>
+  </div>
+
+  <script>
+    let isScanning = false;
+    let stream;
+    let barcodeDetector;
+    let scanInterval;
+    
+    function addDebug(message) {
+      const debug = document.getElementById('debug-text');
+      const time = new Date().toLocaleTimeString();
+      debug.innerHTML = time + ': ' + message + '<br>' + debug.innerHTML;
+    }
+    
+    // Check browser support
+    function checkSupport() {
+      const supportDiv = document.getElementById('support-check');
+      
+      if ('BarcodeDetector' in window) {
+        addDebug('✅ Native Barcode Detection API supported!');
+        supportDiv.innerHTML = '<div style="background: #ccffcc; padding: 10px; margin: 10px;">✅ Your browser supports native barcode detection!</div>';
+        return true;
+      } else {
+        addDebug('❌ Native Barcode Detection API not supported');
+        supportDiv.innerHTML = '<div class="warning">⚠️ Your browser doesn\'t support native barcode detection. Try Chrome 83+ or Edge 83+</div>';
+        return false;
+      }
+    }
+    
+    async function startScanner() {
+      if (isScanning) return;
+      
+      if (!checkSupport()) {
+        addDebug('Cannot start - API not supported');
+        return;
+      }
+      
+      document.getElementById('result').value = '';
+      addDebug('Starting native scanner...');
+      
+      try {
+        // Create barcode detector
+        barcodeDetector = new BarcodeDetector({
+          formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e']
+        });
+        
+        // Get camera stream
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: 'environment',
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+          }
+        });
+        
+        const video = document.getElementById('video');
+        video.srcObject = stream;
+        
+        addDebug('Camera started, beginning detection...');
+        
+        // Start scanning loop
+        scanInterval = setInterval(async () => {
+          try {
+            const barcodes = await barcodeDetector.detect(video);
+            
+            if (barcodes.length > 0) {
+              const barcode = barcodes[0];
+              addDebug('SUCCESS! Detected: ' + barcode.rawValue);
+              document.getElementById('result').value = barcode.rawValue;
+              
+              if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+              }
+              
+              // Optional: stop after first detection
+              // stopScanner();
+            }
+          } catch (err) {
+            console.error('Detection error:', err);
+          }
+        }, 100); // Check every 100ms
+        
+        isScanning = true;
+        document.getElementById('start-btn').style.display = 'none';
+        document.getElementById('stop-btn').style.display = 'block';
+        addDebug('Native scanner ready - point at barcode');
+        
+      } catch (err) {
+        addDebug('ERROR: ' + err.message);
+      }
+    }
+    
+    function stopScanner() {
+      if (!isScanning) return;
+      
+      if (scanInterval) {
+        clearInterval(scanInterval);
+      }
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+      
+      isScanning = false;
+      document.getElementById('start-btn').style.display = 'block';
+      document.getElementById('stop-btn').style.display = 'none';
+      addDebug('Scanner stopped');
+    }
+    
+    // Check support on page load
+    window.addEventListener('load', checkSupport);
+  </script>
+</body>
+</html>
