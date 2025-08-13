@@ -54,6 +54,14 @@ function startScanner() {
     console.log('Full data:', data);
     result.value = data.codeResult.code;
     statusEl.textContent = 'Scan successful ✅';
+    
+    // Flash indicators
+    const indicators = document.querySelectorAll('.indicator');
+    indicators.forEach(indicator => {
+      indicator.classList.add('flash');
+      setTimeout(() => indicator.classList.remove('flash'), 500);
+    });
+    
     if (navigator.vibrate) navigator.vibrate(200);
   });
   

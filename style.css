@@ -108,3 +108,48 @@ button:hover {
   margin-top: 20px;
   font-size: 14px;
 }
+
+.scan-indicators {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 80px;
+  pointer-events: none;
+}
+
+.indicator {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3px solid #00ff00;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.left-indicator {
+  left: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+}
+
+.right-indicator {
+  right: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-left: none;
+  border-radius: 0 8px 8px 0;
+}
+
+.indicator.flash {
+  opacity: 1;
+  animation: flash 0.5s ease-in-out;
+}
+
+@keyframes flash {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
