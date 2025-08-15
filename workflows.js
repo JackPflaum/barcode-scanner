@@ -111,6 +111,8 @@ class WorkflowManager {
         // Only allow item scans during picking
         if (prefix === 'itm_') {
           await this.handlePickingItemScan(barcode);
+        } else if (prefix === 'ord_') {
+          showNotification('Order workflow already active. Scan items or cancel current workflow.', 'error');
         } else {
           showNotification('Please scan an item from your order list', 'error');
         }
@@ -119,15 +121,25 @@ class WorkflowManager {
         // Only allow item scans during stock count
         if (prefix === 'itm_') {
           await this.handleStockCountItemScan(barcode);
+        } else if (prefix === 'stc_') {
+          showNotification('Stock count workflow already active. Scan items or cancel current workflow.', 'error');
         } else {
           showNotification('Please scan an item from your stock count list', 'error');
         }
         break;
       case 'locationmove':
-        await this.handleLocationMoveScan(barcode);
+        if (prefix === 'loc_' && this.workflowData.step !== 'scan_destination') {
+          showNotification('Location move workflow already active. Follow the current step or cancel workflow.', 'error');
+        } else {
+          await this.handleLocationMoveScan(barcode);
+        }
         break;
       case 'returns':
-        await this.handleReturnsScan(barcode);
+        if (prefix === 'itm_') {
+          showNotification('Returns workflow already active. Scan a location or cancel workflow.', 'error');
+        } else {
+          await this.handleReturnsScan(barcode);
+        }
         break;
     }
   }
@@ -195,6 +207,8 @@ class WorkflowManager {
       } else {
         showNotification('Please scan a location barcode (loc_)', 'error');
       }
+    } else {
+      showNotification('Please follow the current workflow step', 'error');
     }
   }
 
@@ -214,6 +228,8 @@ class WorkflowManager {
       } else {
         showNotification('Please scan a location barcode (loc_)', 'error');
       }
+    } else {
+      showNotification('Please follow the current workflow step', 'error');
     }
   }
 
@@ -279,7 +295,7 @@ class WorkflowManager {
               </div>
               <div class="mt-3 text-center">
                 <button class="btn btn-success" onclick="workflowManager.completeWorkflow()">Complete Order</button>
-                <button class="btn btn-outline-danger ms-2" onclick="workflowManager.resetWorkflow()">Cancel Workflow</button>
+                <button class="btn btn-outline-danger ms-2" onclick="workflowManager.cancelWorkflow()">Cancel Workflow</button>
               </div>
             </div>
           </div>
@@ -328,7 +344,7 @@ class WorkflowManager {
               </div>
               <div class="mt-3 text-center">
                 <button class="btn btn-success" onclick="workflowManager.completeWorkflow()">Complete Count</button>
-                <button class="btn btn-outline-danger ms-2" onclick="workflowManager.resetWorkflow()">Cancel Workflow</button>
+                <button class="btn btn-outline-danger ms-2" onclick="workflowManager.cancelWorkflow()">Cancel Workflow</button>
               </div>
             </div>
           </div>
@@ -451,6 +467,13 @@ class WorkflowManager {
   completeWorkflow() {
     showNotification(`${this.currentWorkflow} workflow completed!`, 'success');
     this.resetWorkflow();
+  }
+
+  cancelWorkflow() {
+    showNotification('Workflow cancelled', 'info');
+    this.currentWorkflow = null;
+    this.workflowData = null;
+    this.renderDefaultView();
   }
 
   resetWorkflow() {
