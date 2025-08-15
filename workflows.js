@@ -7,6 +7,7 @@ class WorkflowManager {
 
   async handleBarcode(barcode) {
     const prefix = barcode.substring(0, 4);
+    showNotification(`DEBUG: Scanned ${barcode}, prefix: ${prefix}, workflow: ${this.currentWorkflow}`, 'info');
     
     // If workflow is active, only process expected barcodes
     if (this.currentWorkflow === 'picking') {
@@ -73,6 +74,7 @@ class WorkflowManager {
       
       this.showCancelButton();
       showNotification(`Order ${orderData.order_id} loaded successfully`, 'success');
+      showNotification(`DEBUG: Workflow set to picking`, 'info');
       this.renderPickingWorkflow();
       
     } catch (error) {
