@@ -8,12 +8,36 @@ class WorkflowManager {
   async handleBarcode(barcode) {
     const prefix = barcode.substring(0, 4);
     
-    // If we're in an active workflow, validate the scan
-    if (this.currentWorkflow) {
-      return await this.handleWorkflowScan(barcode);
+    // If workflow is active, only process expected barcodes
+    if (this.currentWorkflow === 'picking') {
+      if (prefix === 'itm_') {
+        await this.handlePickingItemScan(barcode);
+      } else {
+        showNotification('Wrong barcode. Please scan an item from your order.', 'error');
+      }
+      return;
     }
     
-    // Start new workflows only when no workflow is active
+    if (this.currentWorkflow === 'stockcount') {
+      if (prefix === 'itm_') {
+        await this.handleStockCountItemScan(barcode);
+      } else {
+        showNotification('Wrong barcode. Please scan an item from your stock count.', 'error');
+      }
+      return;
+    }
+    
+    if (this.currentWorkflow === 'locationmove') {
+      await this.handleLocationMoveScan(barcode);
+      return;
+    }
+    
+    if (this.currentWorkflow === 'returns') {
+      await this.handleReturnsScan(barcode);
+      return;
+    }
+    
+    // No active workflow - start new one
     switch (prefix) {
       case 'ord_':
         await this.startPickingWorkflow(barcode);
@@ -25,7 +49,11 @@ class WorkflowManager {
         await this.startLocationMoveWorkflow(barcode);
         break;
       case 'itm_':
-        await this.handleItemScan(barcode);
+        this.currentWorkflow = 'returns';
+        this.workflowData = { item: barcode, step: 'scan_location' };
+        this.showCancelButton();
+        showNotification('Scan the destination location for this item', 'info');
+        this.renderReturnsWorkflow();
         break;
       default:
         showNotification(`Unknown barcode format: ${barcode}`, 'error');
@@ -91,58 +119,9 @@ class WorkflowManager {
     }
   }
 
-  async handleItemScan(barcode) {
-    if (this.currentWorkflow === 'locationmove' && this.workflowData.step === 'scan_item') {
-      this.workflowData.item = barcode;
-      this.workflowData.step = 'scan_destination';
-      showNotification('Now scan the destination location', 'info');
-      this.renderLocationMoveWorkflow();
-    } else if (!this.currentWorkflow) {
-      // Start returns workflow only when no workflow is active
-      this.currentWorkflow = 'returns';
-      this.workflowData = { item: barcode, step: 'scan_location' };
-      this.showCancelButton();
-      showNotification('Scan the destination location for this item', 'info');
-      this.renderReturnsWorkflow();
-    }
-  }
 
-  async handleWorkflowScan(barcode) {
-    const prefix = barcode.substring(0, 4);
-    
-    switch (this.currentWorkflow) {
-      case 'picking':
-        // Only allow item scans during picking
-        if (prefix === 'itm_') {
-          await this.handlePickingItemScan(barcode);
-        } else {
-          showNotification('That is not an item. Please scan an item from your order list.', 'error');
-        }
-        break;
-      case 'stockcount':
-        // Only allow item scans during stock count
-        if (prefix === 'itm_') {
-          await this.handleStockCountItemScan(barcode);
-        } else {
-          showNotification('That is not an item. Please scan an item from your stock count list.', 'error');
-        }
-        break;
-      case 'locationmove':
-        if (prefix === 'loc_' && this.workflowData.step !== 'scan_destination') {
-          showNotification('Location move workflow already active. Follow the current step or cancel workflow.', 'error');
-        } else {
-          await this.handleLocationMoveScan(barcode);
-        }
-        break;
-      case 'returns':
-        if (prefix === 'itm_') {
-          showNotification('Returns workflow already active. Scan a location or cancel workflow.', 'error');
-        } else {
-          await this.handleReturnsScan(barcode);
-        }
-        break;
-    }
-  }
+
+
 
   async handlePickingItemScan(barcode) {
     const item = this.workflowData.items.find(i => i.barcode === barcode);
