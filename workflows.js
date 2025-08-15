@@ -8,6 +8,12 @@ class WorkflowManager {
   async handleBarcode(barcode) {
     const prefix = barcode.substring(0, 4);
     
+    // If we're in an active workflow, validate the scan
+    if (this.currentWorkflow) {
+      return await this.handleWorkflowScan(barcode);
+    }
+    
+    // Start new workflows only when no workflow is active
     switch (prefix) {
       case 'ord_':
         await this.startPickingWorkflow(barcode);
@@ -22,11 +28,7 @@ class WorkflowManager {
         await this.handleItemScan(barcode);
         break;
       default:
-        if (this.currentWorkflow) {
-          await this.handleWorkflowScan(barcode);
-        } else {
-          showNotification(`Unknown barcode format: ${barcode}`, 'error');
-        }
+        showNotification(`Unknown barcode format: ${barcode}`, 'error');
     }
   }
 
@@ -102,12 +104,24 @@ class WorkflowManager {
   }
 
   async handleWorkflowScan(barcode) {
+    const prefix = barcode.substring(0, 4);
+    
     switch (this.currentWorkflow) {
       case 'picking':
-        await this.handlePickingItemScan(barcode);
+        // Only allow item scans during picking
+        if (prefix === 'itm_') {
+          await this.handlePickingItemScan(barcode);
+        } else {
+          showNotification('Please scan an item from your order list', 'error');
+        }
         break;
       case 'stockcount':
-        await this.handleStockCountItemScan(barcode);
+        // Only allow item scans during stock count
+        if (prefix === 'itm_') {
+          await this.handleStockCountItemScan(barcode);
+        } else {
+          showNotification('Please scan an item from your stock count list', 'error');
+        }
         break;
       case 'locationmove':
         await this.handleLocationMoveScan(barcode);
@@ -157,30 +171,49 @@ class WorkflowManager {
   }
 
   async handleLocationMoveScan(barcode) {
-    if (this.workflowData.step === 'scan_destination') {
-      const locationData = await this.loadLocationData(barcode);
-      if (!locationData) {
-        showNotification('Invalid destination location', 'error');
-        return;
+    const prefix = barcode.substring(0, 4);
+    
+    if (this.workflowData.step === 'scan_item') {
+      if (prefix === 'itm_') {
+        this.workflowData.item = barcode;
+        this.workflowData.step = 'scan_destination';
+        showNotification('Now scan the destination location', 'info');
+        this.renderLocationMoveWorkflow();
+      } else {
+        showNotification('Please scan an item to move', 'error');
       }
-
-      this.workflowData.destinationLocation = locationData;
-      this.workflowData.step = 'confirm_move';
-      this.renderLocationMoveWorkflow();
+    } else if (this.workflowData.step === 'scan_destination') {
+      if (prefix === 'loc_') {
+        const locationData = await this.loadLocationData(barcode);
+        if (!locationData) {
+          showNotification('Invalid destination location', 'error');
+          return;
+        }
+        this.workflowData.destinationLocation = locationData;
+        this.workflowData.step = 'confirm_move';
+        this.renderLocationMoveWorkflow();
+      } else {
+        showNotification('Please scan a location barcode (loc_)', 'error');
+      }
     }
   }
 
   async handleReturnsScan(barcode) {
+    const prefix = barcode.substring(0, 4);
+    
     if (this.workflowData.step === 'scan_location') {
-      const locationData = await this.loadLocationData(barcode);
-      if (!locationData) {
-        showNotification('Invalid location', 'error');
-        return;
+      if (prefix === 'loc_') {
+        const locationData = await this.loadLocationData(barcode);
+        if (!locationData) {
+          showNotification('Invalid location', 'error');
+          return;
+        }
+        this.workflowData.location = locationData;
+        this.workflowData.step = 'confirm';
+        this.renderReturnsWorkflow();
+      } else {
+        showNotification('Please scan a location barcode (loc_)', 'error');
       }
-
-      this.workflowData.location = locationData;
-      this.workflowData.step = 'confirm';
-      this.renderReturnsWorkflow();
     }
   }
 
@@ -221,6 +254,9 @@ class WorkflowManager {
                 <div class="progress-fill" style="width: ${(completedItems/totalItems)*100}%"></div>
               </div>
               <small class="text-muted">${completedItems}/${totalItems} items complete</small>
+              <div class="mt-2">
+                <small class="text-info">📱 Scan items from the list below</small>
+              </div>
             </div>
             <div class="card-body">
               <div class="item-list">
@@ -243,7 +279,7 @@ class WorkflowManager {
               </div>
               <div class="mt-3 text-center">
                 <button class="btn btn-success" onclick="workflowManager.completeWorkflow()">Complete Order</button>
-                <button class="btn btn-outline-secondary ms-2" onclick="workflowManager.resetWorkflow()">Reset</button>
+                <button class="btn btn-outline-danger ms-2" onclick="workflowManager.resetWorkflow()">Cancel Workflow</button>
               </div>
             </div>
           </div>
@@ -267,6 +303,9 @@ class WorkflowManager {
                 <div class="progress-fill" style="width: ${(countedItems/totalItems)*100}%"></div>
               </div>
               <small class="text-muted">${countedItems}/${totalItems} items counted</small>
+              <div class="mt-2">
+                <small class="text-info">📱 Scan items from the list below</small>
+              </div>
             </div>
             <div class="card-body">
               <div class="item-list">
@@ -289,7 +328,7 @@ class WorkflowManager {
               </div>
               <div class="mt-3 text-center">
                 <button class="btn btn-success" onclick="workflowManager.completeWorkflow()">Complete Count</button>
-                <button class="btn btn-outline-secondary ms-2" onclick="workflowManager.resetWorkflow()">Reset</button>
+                <button class="btn btn-outline-danger ms-2" onclick="workflowManager.resetWorkflow()">Cancel Workflow</button>
               </div>
             </div>
           </div>
