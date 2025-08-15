@@ -196,10 +196,10 @@ window.appUtils = {
         
         // Test data
         const testSequence = [
-            'ord_1001', // Start picking
-            'itm_501',  // Pick item
-            'stc_2001', // Should show error
-            'loc_3001'  // Should show error
+            'ord_1001',      // Start picking
+            '34623636436',   // Pick item
+            'stc_2001',      // Should show error
+            'loc_3001'       // Should show error
         ];
         
         let index = 0;

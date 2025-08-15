@@ -68,8 +68,8 @@
                 <h5>Test Sequence:</h5>
                 <ol>
                     <li>Scan <code>ord_1001</code> to load order</li>
-                    <li>Scan <code>itm_501</code> five times (Red Widget)</li>
-                    <li>Scan <code>itm_502</code> twice (Blue Widget)</li>
+                    <li>Scan <code>34623636436</code> five times (Red Widget)</li>
+                    <li>Scan <code>354#%&23_23</code> twice (Blue Widget)</li>
                     <li>Click "Complete Order" when all items are picked</li>
                 </ol>
             </div>
@@ -117,8 +117,8 @@
                     <div class="barcode-container">
                         <h6>Red Widget</h6>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_501&code=Code128&translate-esc=on" alt="itm_501">
-                            <div class="mt-1"><strong>itm_501</strong></div>
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=34623636436&code=Code128&translate-esc=on" alt="34623636436">
+                            <div class="mt-1"><strong>34623636436</strong></div>
                         </div>
                         <small>SKU-RED-001</small>
                     </div>
@@ -127,8 +127,8 @@
                     <div class="barcode-container">
                         <h6>Blue Widget</h6>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_502&code=Code128&translate-esc=on" alt="itm_502">
-                            <div class="mt-1"><strong>itm_502</strong></div>
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=354%23%25%2623_23&code=Code128&translate-esc=on" alt="354#%&23_23">
+                            <div class="mt-1"><strong>354#%&23_23</strong></div>
                         </div>
                         <small>SKU-BLUE-002</small>
                     </div>
@@ -137,8 +137,8 @@
                     <div class="barcode-container">
                         <h6>Green Gadget</h6>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_503&code=Code128&translate-esc=on" alt="itm_503">
-                            <div class="mt-1"><strong>itm_503</strong></div>
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=789ABC123XYZ&code=Code128&translate-esc=on" alt="789ABC123XYZ">
+                            <div class="mt-1"><strong>789ABC123XYZ</strong></div>
                         </div>
                         <small>SKU-GREEN-003</small>
                     </div>
@@ -147,8 +147,8 @@
                     <div class="barcode-container">
                         <h6>Yellow Tool</h6>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_504&code=Code128&translate-esc=on" alt="itm_504">
-                            <div class="mt-1"><strong>itm_504</strong></div>
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=YLW-987654321&code=Code128&translate-esc=on" alt="YLW-987654321">
+                            <div class="mt-1"><strong>YLW-987654321</strong></div>
                         </div>
                         <small>SKU-YELLOW-004</small>
                     </div>
@@ -165,8 +165,8 @@
                 <h5>Test Sequence:</h5>
                 <ol>
                     <li>Scan <code>stc_2001</code> to load stock count</li>
-                    <li>Scan <code>itm_501</code> and enter quantity (e.g., 8)</li>
-                    <li>Scan <code>itm_504</code> and enter quantity (e.g., 12)</li>
+                    <li>Scan <code>34623636436</code> and enter quantity (e.g., 8)</li>
+                    <li>Scan <code>YLW-987654321</code> and enter quantity (e.g., 12)</li>
                     <li>Click "Complete Count" when done</li>
                 </ol>
             </div>
@@ -205,7 +205,7 @@
                 <ol>
                     <li>Scan <code>loc_3001</code> (source location)</li>
                     <li>Click "Yes, Move Item"</li>
-                    <li>Scan <code>itm_501</code> (item to move)</li>
+                    <li>Scan <code>34623636436</code> (item to move)</li>
                     <li>Scan <code>loc_3004</code> (destination location)</li>
                     <li>Click "Confirm Move"</li>
                 </ol>
@@ -264,7 +264,7 @@
                 <h5>Test Sequence:</h5>
                 <ol>
                     <li>Ensure no workflow is active (cancel any active workflow)</li>
-                    <li>Scan <code>itm_505</code> (Purple Device)</li>
+                    <li>Scan <code>PRP@456DEF789</code> (Purple Device)</li>
                     <li>Scan <code>loc_3004</code> (destination location)</li>
                     <li>Click "Confirm Placement"</li>
                 </ol>
@@ -275,8 +275,8 @@
                     <div class="barcode-container">
                         <h5>Purple Device (Returns Item)</h5>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_505&code=Code128&translate-esc=on" alt="itm_505">
-                            <div class="mt-2"><strong>itm_505</strong></div>
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=PRP%40456DEF789&code=Code128&translate-esc=on" alt="PRP@456DEF789">
+                            <div class="mt-2"><strong>PRP@456DEF789</strong></div>
                         </div>
                         <small class="text-muted">SKU-PURPLE-005</small>
                     </div>
@@ -296,7 +296,7 @@
                     <li>Try scanning <code>stc_2001</code> → Should show "Item doesn't exist in order"</li>
                     <li>Try scanning <code>loc_3001</code> → Should show "Item doesn't exist in order"</li>
                     <li>Try scanning <code>ord_1002</code> → Should show "Item doesn't exist in order"</li>
-                    <li>Only <code>itm_</code> barcodes should work during picking</li>
+                    <li>Only item barcodes (numbers) should work during picking</li>
                 </ol>
             </div>
         </div>

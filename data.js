@@ -10,7 +10,7 @@ const ORDERS = {
         customer: 'ACME Corp',
         items: [
             {
-                barcode: 'itm_501',
+                barcode: '34623636436',
                 name: 'Red Widget',
                 sku: 'SKU-RED-001',
                 location: 'QM1-1-1A',
@@ -18,7 +18,7 @@ const ORDERS = {
                 quantity_picked: 0
             },
             {
-                barcode: 'itm_502',
+                barcode: '354#%&23_23',
                 name: 'Blue Widget',
                 sku: 'SKU-BLUE-002',
                 location: 'QM1-1-2B',
@@ -32,7 +32,7 @@ const ORDERS = {
         customer: 'TechCorp Ltd',
         items: [
             {
-                barcode: 'itm_503',
+                barcode: '789ABC123XYZ',
                 name: 'Green Gadget',
                 sku: 'SKU-GREEN-003',
                 location: 'QM1-2-1A',
@@ -50,14 +50,14 @@ const STOCK_COUNTS = {
         location: 'QM1-1-1A',
         items: [
             {
-                barcode: 'itm_501',
+                barcode: '34623636436',
                 name: 'Red Widget',
                 sku: 'SKU-RED-001',
                 expected_quantity: 10,
                 counted_quantity: null
             },
             {
-                barcode: 'itm_504',
+                barcode: 'YLW-987654321',
                 name: 'Yellow Tool',
                 sku: 'SKU-YELLOW-004',
                 expected_quantity: 15,
@@ -70,7 +70,7 @@ const STOCK_COUNTS = {
         location: 'QM1-2-1A',
         items: [
             {
-                barcode: 'itm_503',
+                barcode: '789ABC123XYZ',
                 name: 'Green Gadget',
                 sku: 'SKU-GREEN-003',
                 expected_quantity: 8,
@@ -88,7 +88,7 @@ const LOCATIONS = {
         aisle: '1',
         shelf: '1A',
         capacity: 100,
-        current_items: ['itm_501', 'itm_502']
+        current_items: ['34623636436', '354#%&23_23']
     },
     'loc_3002': {
         location_id: 'QM1-1-2B',
@@ -96,7 +96,7 @@ const LOCATIONS = {
         aisle: '1',
         shelf: '2B',
         capacity: 50,
-        current_items: ['itm_502']
+        current_items: ['354#%&23_23']
     },
     'loc_3003': {
         location_id: 'QM1-2-1A',
@@ -104,7 +104,7 @@ const LOCATIONS = {
         aisle: '2',
         shelf: '1A',
         capacity: 75,
-        current_items: ['itm_503']
+        current_items: ['789ABC123XYZ']
     },
     'loc_3004': {
         location_id: 'QM1-2-2B',
@@ -118,40 +118,40 @@ const LOCATIONS = {
 
 // Items Data - All Items
 const ITEMS = {
-    'itm_501': {
-        barcode: 'itm_501',
+    '34623636436': {
+        barcode: '34623636436',
         name: 'Red Widget',
         sku: 'SKU-RED-001',
         description: 'Premium red widget for industrial use',
         weight: 0.5,
         dimensions: '10x5x2 cm'
     },
-    'itm_502': {
-        barcode: 'itm_502',
+    '354#%&23_23': {
+        barcode: '354#%&23_23',
         name: 'Blue Widget',
         sku: 'SKU-BLUE-002',
         description: 'Standard blue widget for general applications',
         weight: 0.3,
         dimensions: '8x4x2 cm'
     },
-    'itm_503': {
-        barcode: 'itm_503',
+    '789ABC123XYZ': {
+        barcode: '789ABC123XYZ',
         name: 'Green Gadget',
         sku: 'SKU-GREEN-003',
         description: 'Advanced green gadget with multiple functions',
         weight: 1.2,
         dimensions: '15x8x5 cm'
     },
-    'itm_504': {
-        barcode: 'itm_504',
+    'YLW-987654321': {
+        barcode: 'YLW-987654321',
         name: 'Yellow Tool',
         sku: 'SKU-YELLOW-004',
         description: 'Precision yellow tool for specialized tasks',
         weight: 0.8,
         dimensions: '12x6x3 cm'
     },
-    'itm_505': {
-        barcode: 'itm_505',
+    'PRP@456DEF789': {
+        barcode: 'PRP@456DEF789',
         name: 'Purple Device',
         sku: 'SKU-PURPLE-005',
         description: 'Compact purple device for mobile operations',
