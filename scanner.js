@@ -24,7 +24,7 @@ class BarcodeScanner {
      */
     initializeElements() {
         this.video = document.getElementById('video');
-        this.toggleButton = document.getElementById('toggle-camera');
+        this.toggleButton = document.getElementById('mobile-camera-toggle');
         this.cameraContainer = document.getElementById('camera-container');
         this.zoomControl = document.getElementById('zoom-control');
         this.zoomValue = document.getElementById('zoom-value');
@@ -40,6 +40,8 @@ class BarcodeScanner {
         this.zoomControl.addEventListener('input', (e) => this.handleZoomChange(e));
         this.flashlightToggle.addEventListener('click', () => this.toggleFlashlight());
         this.resetZoomButton.addEventListener('click', () => this.resetZoom());
+        
+
     }
 
     /**
