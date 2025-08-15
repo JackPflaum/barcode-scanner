@@ -524,7 +524,7 @@ class WorkflowManager {
      * Manual quantity entry for picking workflow
      */
     manualQuantityEntry(itemBarcode) {
-        const userPin = prompt('Enter user PIN:');
+        const userPin = prompt('Enter user PIN (1234):');
         if (userPin !== '1234') {
             this.showError('Invalid PIN');
             return;

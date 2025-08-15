@@ -18,7 +18,7 @@ const ORDERS = {
                 quantity_picked: 0
             },
             {
-                barcode: '354#%&23_23',
+                barcode: '123',
                 name: 'Blue Widget',
                 sku: 'SKU-BLUE-002',
                 location: 'QM1-1-2B',
@@ -88,7 +88,7 @@ const LOCATIONS = {
         aisle: '1',
         shelf: '1A',
         capacity: 100,
-        current_items: ['34623636436', '354#%&23_23']
+        current_items: ['34623636436', '123']
     },
     'loc_3002': {
         location_id: 'QM1-1-2B',
@@ -96,7 +96,7 @@ const LOCATIONS = {
         aisle: '1',
         shelf: '2B',
         capacity: 50,
-        current_items: ['354#%&23_23']
+        current_items: ['123']
     },
     'loc_3003': {
         location_id: 'QM1-2-1A',
@@ -126,8 +126,8 @@ const ITEMS = {
         weight: 0.5,
         dimensions: '10x5x2 cm'
     },
-    '354#%&23_23': {
-        barcode: '354#%&23_23',
+    '123': {
+        barcode: '123',
         name: 'Blue Widget',
         sku: 'SKU-BLUE-002',
         description: 'Standard blue widget for general applications',
