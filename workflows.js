@@ -43,6 +43,7 @@ class WorkflowManager {
       this.currentWorkflow = 'picking';
       this.workflowData = orderData;
       
+      this.showCancelButton();
       showNotification(`Order ${orderData.order_id} loaded successfully`, 'success');
       this.renderPickingWorkflow();
       
@@ -62,6 +63,7 @@ class WorkflowManager {
       this.currentWorkflow = 'stockcount';
       this.workflowData = stockCountData;
       
+      this.showCancelButton();
       showNotification(`Stock count ${stockCountData.stock_count_id} loaded`, 'success');
       this.renderStockCountWorkflow();
       
@@ -81,6 +83,7 @@ class WorkflowManager {
       this.currentWorkflow = 'locationmove';
       this.workflowData = { sourceLocation: locationData, step: 'confirm' };
       
+      this.showCancelButton();
       this.renderLocationMoveWorkflow();
       
     } catch (error) {
@@ -98,6 +101,7 @@ class WorkflowManager {
       // Start returns workflow
       this.currentWorkflow = 'returns';
       this.workflowData = { item: barcode, step: 'scan_location' };
+      this.showCancelButton();
       showNotification('Scan the destination location for this item', 'info');
       this.renderReturnsWorkflow();
     }
@@ -111,20 +115,16 @@ class WorkflowManager {
         // Only allow item scans during picking
         if (prefix === 'itm_') {
           await this.handlePickingItemScan(barcode);
-        } else if (prefix === 'ord_') {
-          showNotification('Order workflow already active. Scan items or cancel current workflow.', 'error');
         } else {
-          showNotification('Please scan an item from your order list', 'error');
+          showNotification('That is not an item. Please scan an item from your order list.', 'error');
         }
         break;
       case 'stockcount':
         // Only allow item scans during stock count
         if (prefix === 'itm_') {
           await this.handleStockCountItemScan(barcode);
-        } else if (prefix === 'stc_') {
-          showNotification('Stock count workflow already active. Scan items or cancel current workflow.', 'error');
         } else {
-          showNotification('Please scan an item from your stock count list', 'error');
+          showNotification('That is not an item. Please scan an item from your stock count list.', 'error');
         }
         break;
       case 'locationmove':
@@ -469,14 +469,24 @@ class WorkflowManager {
     this.resetWorkflow();
   }
 
+  showCancelButton() {
+    document.getElementById('cancel-workflow-btn').classList.remove('d-none');
+  }
+
+  hideCancelButton() {
+    document.getElementById('cancel-workflow-btn').classList.add('d-none');
+  }
+
   cancelWorkflow() {
     showNotification('Workflow cancelled', 'info');
+    this.hideCancelButton();
     this.currentWorkflow = null;
     this.workflowData = null;
     this.renderDefaultView();
   }
 
   resetWorkflow() {
+    this.hideCancelButton();
     this.currentWorkflow = null;
     this.workflowData = null;
     this.renderDefaultView();
