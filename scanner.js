@@ -11,7 +11,7 @@ class BarcodeScanner {
         this.barcodeDetector = null;
         this.scanInterval = null;
         this.lastScanTime = 0;
-        this.scanCooldown = 750; // Prevent duplicate scans
+        this.scanCooldown = 1000; // Prevent duplicate scans
         this.onScanCallback = null;
         
         this.initializeElements();
@@ -92,8 +92,10 @@ class BarcodeScanner {
             // Setup camera controls
             this.setupCameraControls();
 
-            // Start scanning loop
-            this.scanInterval = setInterval(() => this.detectBarcodes(), 200);
+            // Wait for video to be ready before starting scan loop
+            this.video.addEventListener('loadedmetadata', () => {
+                this.scanInterval = setInterval(() => this.detectBarcodes(), 300);
+            }, { once: true });
 
             this.isScanning = true;
             this.toggleButton.textContent = 'Stop Camera';
@@ -135,7 +137,7 @@ class BarcodeScanner {
      * Detect barcodes in video stream
      */
     async detectBarcodes() {
-        if (!this.barcodeDetector || !this.video.readyState === 4) return;
+        if (!this.barcodeDetector || !this.video || this.video.readyState !== 4) return;
 
         try {
             const barcodes = await this.barcodeDetector.detect(this.video);
@@ -163,7 +165,10 @@ class BarcodeScanner {
                 console.log('Barcode detected:', barcode.rawValue);
             }
         } catch (error) {
-            console.error('Barcode detection error:', error);
+            // Silently handle detection errors to prevent flickering
+            if (error.name !== 'InvalidStateError') {
+                console.error('Barcode detection error:', error);
+            }
         }
     }
 
