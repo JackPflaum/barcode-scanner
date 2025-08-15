@@ -1,67 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Barcode Test</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Workflow Test Barcodes</title>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; padding: 20px; }
-    .barcode { margin: 20px 0; padding: 20px; border: 2px solid #000; text-align: center; }
+    body { margin: 0; font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; }
+    .workflow-section { margin: 30px 0; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .barcode { margin: 15px 0; padding: 15px; border: 2px solid #007bff; border-radius: 8px; text-align: center; background: #fff; }
     .barcode img { max-width: 100%; height: auto; }
-    p { font-size: 18px; }
+    .workflow-title { color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+    .code-text { font-family: monospace; font-size: 16px; font-weight: bold; color: #333; }
   </style>
 </head>
 <body>
-  <h2>Test Barcodes</h2>
-  <p><a href="index.html">← Home</a></p>
+  <h1>📱 Workflow Test Barcodes</h1>
+  <p><a href="index.html">← Back to Scanner</a></p>
   
-  <p><strong>Try scanning these test barcodes with your scanner:</strong></p>
-  
-  <div class="barcode">
-    <h3>UPC-A Barcode: "012345678905"</h3>
-    <img src="https://barcode.tec-it.com/barcode.ashx?data=012345678905&code=UPCA&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="UPC-A Barcode" style="max-width: 100%; height: auto;">
-    <p>Code: 012345678905</p>
+  <div class="workflow-section">
+    <h2 class="workflow-title">📋 Picking Slip Workflow (ord_ prefix)</h2>
+    <p>Scan these to start picking workflows:</p>
+    
+    <div class="barcode">
+      <h4>Order 1001 - Small Order</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=ord_1001&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Order 1001">
+      <p class="code-text">ord_1001</p>
+    </div>
+
+    <div class="barcode">
+      <h4>Order 1002 - High Quantity Item</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=ord_1002&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Order 1002">
+      <p class="code-text">ord_1002</p>
+    </div>
   </div>
 
-  <div class="barcode">
-    <h3>Code 128: "HELLO123"</h3>
-    <img src="https://barcode.tec-it.com/barcode.ashx?data=HELLO123&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Code 128 Barcode" style="max-width: 100%; height: auto;">
-    <p>Code: HELLO123</p>
+  <div class="workflow-section">
+    <h2 class="workflow-title">📊 Stock Count Workflow (stc_ prefix)</h2>
+    <p>Scan to start stock counting:</p>
+    
+    <div class="barcode">
+      <h4>Stock Count 2001</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=stc_2001&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Stock Count 2001">
+      <p class="code-text">stc_2001</p>
+    </div>
   </div>
 
-  <div class="barcode">
-    <h3>EAN-13: "4012345678901"</h3>
-    <img src="https://barcode.tec-it.com/barcode.ashx?data=4012345678901&code=EAN13&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="EAN-13 Barcode" style="max-width: 100%; height: auto;">
-    <p>Code: 4012345678901</p>
+  <div class="workflow-section">
+    <h2 class="workflow-title">📦 Location Move Workflow (loc_ prefix)</h2>
+    <p>Scan locations for move operations:</p>
+    
+    <div class="barcode">
+      <h4>Location QM1-1-1A</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=loc_3001&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Location 3001">
+      <p class="code-text">loc_3001</p>
+    </div>
+
+    <div class="barcode">
+      <h4>Location QM1-1-2B</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=loc_3002&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Location 3002">
+      <p class="code-text">loc_3002</p>
+    </div>
   </div>
 
-  <div class="barcode">
-    <h3>Code 39: "TEST123"</h3>
-    <img src="https://barcode.tec-it.com/barcode.ashx?data=TEST123&code=Code39&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Code 39 Barcode" style="max-width: 100%; height: auto;">
-    <p>Code: TEST123</p>
+  <div class="workflow-section">
+    <h2 class="workflow-title">📱 Item Barcodes (itm_ prefix)</h2>
+    <p>Scan these items for picking, returns, or ad-hoc counting:</p>
+    
+    <div class="barcode">
+      <h4>Red Widget</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_501&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Item 501">
+      <p class="code-text">itm_501</p>
+    </div>
+
+    <div class="barcode">
+      <h4>Blue Widget</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_502&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Item 502">
+      <p class="code-text">itm_502</p>
+    </div>
+
+    <div class="barcode">
+      <h4>Green Widget (High Quantity)</h4>
+      <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_503&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=&qunit=Mm&quiet=0" alt="Item 503">
+      <p class="code-text">itm_503</p>
+    </div>
   </div>
 
-  <div class="barcode">
-    <h3>QR Code: "QR-ITEM-001"</h3>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=QR-ITEM-001" alt="QR Code" style="max-width: 100%; height: auto;">
-    <p>Code: QR-ITEM-001</p>
+  <div class="workflow-section">
+    <h2 class="workflow-title">🧪 Test Workflow Sequences</h2>
+    <div style="background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0;">
+      <h4>1. Complete Picking Workflow:</h4>
+      <ol>
+        <li>Scan <strong>ord_1001</strong> (loads order)</li>
+        <li>Scan <strong>itm_501</strong> five times (Red Widget - need 5)</li>
+        <li>Scan <strong>itm_502</strong> twice (Blue Widget - need 2)</li>
+        <li>Order should show as complete</li>
+      </ol>
+    </div>
+
+    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+      <h4>2. Stock Count Workflow:</h4>
+      <ol>
+        <li>Scan <strong>stc_2001</strong> (loads stock count)</li>
+        <li>Scan <strong>itm_501</strong> (enter quantity when prompted)</li>
+        <li>Scan <strong>itm_502</strong> (enter quantity when prompted)</li>
+      </ol>
+    </div>
+
+    <div style="background: #d4edda; padding: 15px; border-radius: 8px; margin: 15px 0;">
+      <h4>3. Location Move Workflow:</h4>
+      <ol>
+        <li>Scan <strong>loc_3001</strong> (source location)</li>
+        <li>Click "Yes, Move Item"</li>
+        <li>Scan <strong>itm_501</strong> (item to move)</li>
+        <li>Scan <strong>loc_3002</strong> (destination)</li>
+        <li>Confirm the move</li>
+      </ol>
+    </div>
+
+    <div style="background: #f8d7da; padding: 15px; border-radius: 8px; margin: 15px 0;">
+      <h4>4. Returns Workflow:</h4>
+      <ol>
+        <li>Scan <strong>itm_501</strong> (starts returns)</li>
+        <li>Scan <strong>loc_3002</strong> (destination location)</li>
+        <li>Confirm placement</li>
+      </ol>
+    </div>
   </div>
 
-  <div class="barcode">
-    <h3>QR Code: "https://example.com/item/123"</h3>
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://example.com/item/123" alt="QR Code URL" style="max-width: 100%; height: auto;">
-    <p>Code: https://example.com/item/123</p>
-  </div>
-
-  <div style="background: #ffffcc; padding: 15px; margin: 20px 0;">
-    <h3>Testing Tips:</h3>
-    <ul style="text-align: left;">
+  <div style="background: #ffffcc; padding: 15px; margin: 20px 0; border-radius: 8px;">
+    <h3>📱 Scanning Tips:</h3>
+    <ul>
       <li>Hold phone 6-12 inches from barcode</li>
       <li>Ensure good lighting</li>
       <li>Keep barcode flat and straight</li>
-      <li>Try different angles</li>
-      <li>Look for "Scanning..." messages in debug</li>
-      <li>If no "Scanning..." appears, the camera isn't processing</li>
+      <li>Wait for scan cooldown (750ms between scans)</li>
+      <li>Check notifications for scan results</li>
     </ul>
   </div>
 
