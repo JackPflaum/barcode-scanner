@@ -106,9 +106,43 @@
         <div class="row mt-3">
             <div class="col-12">
                 <div class="text-center">
-                    <a href="test-barcodes.html" class="btn btn-outline-info btn-sm">
+                    <a href="test-barcodes.html" class="btn btn-outline-info btn-sm me-2">
                         📱 Test Barcodes
                     </a>
+                    <button id="help-button" class="btn btn-outline-secondary btn-sm">
+                        ❓ Help
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Modal -->
+        <div class="modal fade" id="helpModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Warehouse Scanner Help</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>How to Use:</h6>
+                        <ol>
+                            <li>Click "Start Camera" to begin scanning</li>
+                            <li>Point camera at barcode to scan</li>
+                            <li>Follow workflow instructions</li>
+                            <li>Use "Test Barcodes" page for testing</li>
+                        </ol>
+                        <h6>Workflows:</h6>
+                        <ul>
+                            <li><strong>Picking:</strong> Scan ord_ barcode, then scan items</li>
+                            <li><strong>Stock Count:</strong> Scan stc_ barcode, then count items</li>
+                            <li><strong>Location Move:</strong> Scan loc_ barcode, follow steps</li>
+                            <li><strong>Returns:</strong> Scan itm_ barcode when no workflow active</li>
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>

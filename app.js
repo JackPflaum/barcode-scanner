@@ -26,11 +26,27 @@ document.addEventListener('DOMContentLoaded', function() {
     // Setup manual input
     setupManualInput();
     
+    // Setup help button
+    setupHelpButton();
+    
     // Register service worker for PWA
     registerServiceWorker();
     
     console.log('Application initialized successfully');
 });
+
+/**
+ * Setup help button functionality
+ */
+function setupHelpButton() {
+    const helpButton = document.getElementById('help-button');
+    if (helpButton) {
+        helpButton.addEventListener('click', function() {
+            const helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+            helpModal.show();
+        });
+    }
+}
 
 /**
  * Setup manual barcode input functionality

@@ -295,8 +295,12 @@ class BarcodeScanner {
      * Show error message
      */
     showError(message) {
-        // This will be handled by the main app
         console.error('Scanner error:', message);
+        const statusArea = document.getElementById('status-area');
+        if (statusArea) {
+            statusArea.className = 'alert alert-danger';
+            statusArea.textContent = message;
+        }
     }
 
     /**
