@@ -97,8 +97,8 @@ class WorkflowManager {
       this.workflowData.step = 'scan_destination';
       showNotification('Now scan the destination location', 'info');
       this.renderLocationMoveWorkflow();
-    } else {
-      // Start returns workflow
+    } else if (!this.currentWorkflow) {
+      // Start returns workflow only when no workflow is active
       this.currentWorkflow = 'returns';
       this.workflowData = { item: barcode, step: 'scan_location' };
       this.showCancelButton();
