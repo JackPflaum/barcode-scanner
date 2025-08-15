@@ -79,11 +79,9 @@ class WorkflowManager {
             case 'loc_':
                 this.startLocationMoveWorkflow(barcode);
                 break;
-            case 'itm_':
-                this.startReturnsWorkflow(barcode);
-                break;
             default:
-                this.showError('Unknown barcode type');
+                // Any barcode without ord_, stc_, loc_ prefix is treated as item
+                this.startReturnsWorkflow(barcode);
         }
     }
 
@@ -110,7 +108,8 @@ class WorkflowManager {
      * Handle picking workflow barcode scans
      */
     handlePickingWorkflow(barcode, prefix) {
-        if (prefix !== 'itm_') {
+        // Only allow items (non-prefixed) during picking
+        if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
             this.showError('Item doesn\'t exist in order');
             return;
         }
@@ -170,7 +169,8 @@ class WorkflowManager {
      * Handle stock count workflow barcode scans
      */
     handleStockCountWorkflow(barcode, prefix) {
-        if (prefix !== 'itm_') {
+        // Only allow items (non-prefixed) during stock count
+        if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
             this.showError('Item doesn\'t exist in stock count');
             return;
         }
@@ -210,7 +210,7 @@ class WorkflowManager {
     handleLocationMoveWorkflow(barcode, prefix) {
         switch (this.moveWorkflowStep) {
             case 'scan_item':
-                if (prefix !== 'itm_') {
+                if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
                     this.showError('Please scan an item to move');
                     return;
                 }

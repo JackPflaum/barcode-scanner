@@ -163,11 +163,12 @@ const ITEMS = {
 /**
  * Get barcode prefix (first 4 characters including underscore)
  * @param {string} barcode - The barcode to analyze
- * @returns {string} The prefix (ord_, stc_, loc_, itm_)
+ * @returns {string} The prefix (ord_, stc_, loc_) or empty string for items
  */
 function getBarcodePrefix(barcode) {
     if (!barcode || typeof barcode !== 'string') return '';
-    return barcode.substring(0, 4);
+    const prefix = barcode.substring(0, 4);
+    return ['ord_', 'stc_', 'loc_'].includes(prefix) ? prefix : '';
 }
 
 /**
@@ -177,9 +178,7 @@ function getBarcodePrefix(barcode) {
  */
 function isValidBarcode(barcode) {
     if (!barcode || typeof barcode !== 'string') return false;
-    const validPrefixes = ['ord_', 'stc_', 'loc_', 'itm_'];
-    const prefix = getBarcodePrefix(barcode);
-    return validPrefixes.includes(prefix) && barcode.length > 4;
+    return barcode.length > 0;
 }
 
 /**
@@ -211,11 +210,16 @@ function getLocation(barcode) {
 
 /**
  * Get item by barcode
- * @param {string} barcode - Item barcode (itm_xxxx)
+ * @param {string} barcode - Item barcode (any format)
  * @returns {object|null} Item data or null if not found
  */
 function getItem(barcode) {
-    return ITEMS[barcode] || null;
+    // First try direct lookup
+    if (ITEMS[barcode]) return ITEMS[barcode];
+    
+    // Then try with itm_ prefix for backward compatibility
+    const withPrefix = 'itm_' + barcode;
+    return ITEMS[withPrefix] || null;
 }
 
 /**
@@ -226,7 +230,10 @@ function getItem(barcode) {
  */
 function findItemInOrder(order, itemBarcode) {
     if (!order || !order.items) return null;
-    return order.items.find(item => item.barcode === itemBarcode) || null;
+    return order.items.find(item => 
+        item.barcode === itemBarcode || 
+        item.barcode === 'itm_' + itemBarcode
+    ) || null;
 }
 
 /**
@@ -237,5 +244,8 @@ function findItemInOrder(order, itemBarcode) {
  */
 function findItemInStockCount(stockCount, itemBarcode) {
     if (!stockCount || !stockCount.items) return null;
-    return stockCount.items.find(item => item.barcode === itemBarcode) || null;
+    return stockCount.items.find(item => 
+        item.barcode === itemBarcode || 
+        item.barcode === 'itm_' + itemBarcode
+    ) || null;
 }
