@@ -1,114 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Warehouse Barcode Scanner</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Barcode Scanner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#007bff">
 </head>
 <body>
-  <div class="container-fluid">
-    <!-- Header -->
-    <div class="row bg-primary text-white p-3">
-      <div class="col">
-        <h3>📦 Warehouse Scanner</h3>
-      </div>
-      <div class="col-auto">
-        <button id="cancel-workflow-btn" class="btn btn-outline-danger btn-sm me-2 d-none" onclick="workflowManager.cancelWorkflow()">Cancel Workflow</button>
-        <a href="barcode-test.html" class="btn btn-outline-light btn-sm me-2">Test Barcodes</a>
-        <button class="btn btn-light btn-sm" onclick="toggleScanner()">
-          <span id="scanner-toggle-text">Show Scanner</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Scanner Section (Hidden by default) -->
-    <div id="scanner-section" class="scanner-hidden">
-      <div class="row bg-light p-3 border-bottom">
-        <div class="col-12">
-          <div class="scanner-container">
-            <video id="video" autoplay muted playsinline></video>
-            <div class="scan-overlay">
-              <div class="scan-frame"></div>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                    <h4 class="mb-0">Warehouse Scanner</h4>
+                    <button id="cancel-workflow" class="btn btn-danger btn-sm" style="display: none;">
+                        Cancel Workflow
+                    </button>
+                </div>
             </div>
-          </div>
-          
-          <div class="mt-2 text-center">
-            <button id="start-btn" class="btn btn-success" onclick="startScanner()">Start Scanner</button>
-            <button id="stop-btn" class="btn btn-danger d-none" onclick="stopScanner()">Stop Scanner</button>
-            <button class="btn btn-secondary btn-sm" onclick="toggleSettings()">⚙️</button>
-          </div>
+        </div>
 
-          <!-- Camera Settings -->
-          <div id="camera-settings" class="mt-2 d-none">
-            <div class="row">
-              <div class="col-6">
-                <label>Zoom: <span id="zoom-value">1x</span></label>
-                <input type="range" id="zoom" class="form-range" min="1" max="10" step="0.1" value="1">
-              </div>
-              <div class="col-6">
-                <button class="btn btn-sm btn-outline-secondary" onclick="resetZoom()">Reset</button>
-                <button class="btn btn-sm btn-outline-secondary" onclick="toggleTorch()">💡</button>
-              </div>
+        <!-- Status Area -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div id="status-area" class="alert alert-info">
+                    Ready to scan - Point camera at barcode
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Notifications -->
-    <div id="notifications" class="container mt-3"></div>
-
-    <!-- Workflow Content -->
-    <div id="workflow-content" class="container mt-3">
-      <div class="row">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body text-center">
-              <h5>Ready to Scan</h5>
-              <p class="text-muted">Scan a barcode to begin a workflow</p>
-              <div class="workflow-buttons mt-3">
-                <button class="btn btn-outline-primary me-2" onclick="startAdHocCount()">Ad-Hoc Count</button>
-                <button class="btn btn-outline-secondary" onclick="showHelp()">Help</button>
-              </div>
+        <!-- Camera Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Camera Scanner</span>
+                        <button id="toggle-camera" class="btn btn-primary btn-sm">
+                            Start Camera
+                        </button>
+                    </div>
+                    <div id="camera-container" class="card-body" style="display: none;">
+                        <!-- Camera Settings -->
+                        <div class="mb-3">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#camera-settings">
+                                ⚙️ Camera Settings
+                            </button>
+                        </div>
+                        <div class="collapse" id="camera-settings">
+                            <div class="card card-body mb-3">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="zoom-control" class="form-label">Zoom: <span id="zoom-value">1x</span></label>
+                                        <input type="range" class="form-range" id="zoom-control" min="1" max="10" step="0.1" value="1">
+                                    </div>
+                                    <div class="col-md-6 d-flex align-items-end">
+                                        <button id="flashlight-toggle" class="btn btn-outline-warning btn-sm me-2">
+                                            💡 Flashlight
+                                        </button>
+                                        <button id="reset-zoom" class="btn btn-outline-secondary btn-sm">
+                                            Reset Zoom
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Video Element -->
+                        <div class="position-relative">
+                            <video id="video" class="w-100" autoplay muted playsinline style="max-height: 300px; object-fit: cover;"></video>
+                            <div class="scan-overlay"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- Help Modal -->
-  <div class="modal fade" id="helpModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Scanner Help</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <!-- Workflow Content -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div id="workflow-content">
+                    <!-- Dynamic workflow content will be inserted here -->
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <h6>Barcode Formats:</h6>
-          <ul>
-            <li><strong>ord_</strong> - Picking slip workflow</li>
-            <li><strong>stc_</strong> - Stock count workflow</li>
-            <li><strong>loc_</strong> - Location move workflow</li>
-            <li><strong>itm_</strong> - Item/returns workflow</li>
-          </ul>
-          <h6>Test Barcodes:</h6>
-          <ul>
-            <li>ord_1001 - Sample order</li>
-            <li>stc_2001 - Sample stock count</li>
-            <li>loc_3001 - Sample location</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="scanner.js"></script>
-  <script src="simple-workflows.js"></script>
-  <script src="app.js"></script>
+        <!-- Manual Input -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6>Manual Barcode Entry</h6>
+                        <div class="input-group">
+                            <input type="text" id="manual-input" class="form-control" placeholder="Enter barcode manually">
+                            <button id="manual-submit" class="btn btn-outline-primary">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Links -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="text-center">
+                    <a href="test-barcodes.html" class="btn btn-outline-info btn-sm">
+                        📱 Test Barcodes
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="data.js"></script>
+    <script src="scanner.js"></script>
+    <script src="workflows.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>

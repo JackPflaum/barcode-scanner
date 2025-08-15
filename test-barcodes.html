@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Barcodes - Warehouse Scanner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .barcode-container {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .barcode-image {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #000;
+            margin: 10px 0;
+        }
+        .barcode-image img {
+            max-width: 100%;
+            height: auto;
+        }
+        .workflow-section {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin: 20px 0;
+        }
+        .test-sequence {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        @media (max-width: 768px) {
+            .barcode-text {
+                font-size: 18px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-4">
+        <!-- Header -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Test Barcodes</h2>
+                    <a href="index.html" class="btn btn-primary">← Back to Scanner</a>
+                </div>
+                <div class="alert alert-info">
+                    <strong>Instructions:</strong> Use these barcodes to test the scanner application. 
+                    Point your camera at the barcode text below, or manually enter the codes.
+                </div>
+            </div>
+        </div>
+
+        <!-- Picking Workflow Tests -->
+        <div class="workflow-section">
+            <h3 class="text-primary">1. Picking Workflow (ord_ prefix)</h3>
+            <p>Start by scanning an order barcode, then scan items to pick.</p>
+            
+            <div class="test-sequence">
+                <h5>Test Sequence:</h5>
+                <ol>
+                    <li>Scan <code>ord_1001</code> to load order</li>
+                    <li>Scan <code>itm_501</code> five times (Red Widget)</li>
+                    <li>Scan <code>itm_502</code> twice (Blue Widget)</li>
+                    <li>Click "Complete Order" when all items are picked</li>
+                </ol>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="barcode-container">
+                        <h5>Order 1001 - ACME Corp</h5>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=ord_1001&code=Code128&translate-esc=on" alt="ord_1001">
+                            <div class="mt-2"><strong>ord_1001</strong></div>
+                        </div>
+                        <small class="text-muted">2 items: Red Widget (5), Blue Widget (2)</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="barcode-container">
+                        <h5>Order 1002 - TechCorp Ltd</h5>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=ord_1002&code=Code128&translate-esc=on" alt="ord_1002">
+                            <div class="mt-2"><strong>ord_1002</strong></div>
+                        </div>
+                        <small class="text-muted">1 item: Green Gadget (3)</small>
+                    </div>
+                </div>
+            </div>
+
+            <h5>Items for Picking:</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Red Widget</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_501&code=Code128&translate-esc=on" alt="itm_501">
+                            <div class="mt-1"><strong>itm_501</strong></div>
+                        </div>
+                        <small>SKU-RED-001</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Blue Widget</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_502&code=Code128&translate-esc=on" alt="itm_502">
+                            <div class="mt-1"><strong>itm_502</strong></div>
+                        </div>
+                        <small>SKU-BLUE-002</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Green Gadget</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_503&code=Code128&translate-esc=on" alt="itm_503">
+                            <div class="mt-1"><strong>itm_503</strong></div>
+                        </div>
+                        <small>SKU-GREEN-003</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Yellow Tool</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_504&code=Code128&translate-esc=on" alt="itm_504">
+                            <div class="mt-1"><strong>itm_504</strong></div>
+                        </div>
+                        <small>SKU-YELLOW-004</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stock Count Workflow Tests -->
+        <div class="workflow-section">
+            <h3 class="text-success">2. Stock Count Workflow (stc_ prefix)</h3>
+            <p>Start by scanning a stock count barcode, then scan items to count.</p>
+            
+            <div class="test-sequence">
+                <h5>Test Sequence:</h5>
+                <ol>
+                    <li>Scan <code>stc_2001</code> to load stock count</li>
+                    <li>Scan <code>itm_501</code> and enter quantity (e.g., 8)</li>
+                    <li>Scan <code>itm_504</code> and enter quantity (e.g., 12)</li>
+                    <li>Click "Complete Count" when done</li>
+                </ol>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="barcode-container">
+                        <h5>Stock Count 2001</h5>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=stc_2001&code=Code128&translate-esc=on" alt="stc_2001">
+                            <div class="mt-2"><strong>stc_2001</strong></div>
+                        </div>
+                        <small class="text-muted">Location: QM1-1-1A</small>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="barcode-container">
+                        <h5>Stock Count 2002</h5>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=stc_2002&code=Code128&translate-esc=on" alt="stc_2002">
+                            <div class="mt-2"><strong>stc_2002</strong></div>
+                        </div>
+                        <small class="text-muted">Location: QM1-2-1A</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Move Workflow Tests -->
+        <div class="workflow-section">
+            <h3 class="text-warning">3. Location Move Workflow (loc_ prefix)</h3>
+            <p>Start by scanning a source location, then scan item and destination.</p>
+            
+            <div class="test-sequence">
+                <h5>Test Sequence:</h5>
+                <ol>
+                    <li>Scan <code>loc_3001</code> (source location)</li>
+                    <li>Click "Yes, Move Item"</li>
+                    <li>Scan <code>itm_501</code> (item to move)</li>
+                    <li>Scan <code>loc_3004</code> (destination location)</li>
+                    <li>Click "Confirm Move"</li>
+                </ol>
+            </div>
+
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Location QM1-1-1A</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=loc_3001&code=Code128&translate-esc=on" alt="loc_3001">
+                            <div class="mt-1"><strong>loc_3001</strong></div>
+                        </div>
+                        <small>Zone QM1, Aisle 1, Shelf 1A</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Location QM1-1-2B</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=loc_3002&code=Code128&translate-esc=on" alt="loc_3002">
+                            <div class="mt-1"><strong>loc_3002</strong></div>
+                        </div>
+                        <small>Zone QM1, Aisle 1, Shelf 2B</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Location QM1-2-1A</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=loc_3003&code=Code128&translate-esc=on" alt="loc_3003">
+                            <div class="mt-1"><strong>loc_3003</strong></div>
+                        </div>
+                        <small>Zone QM1, Aisle 2, Shelf 1A</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="barcode-container">
+                        <h6>Location QM1-2-2B</h6>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=loc_3004&code=Code128&translate-esc=on" alt="loc_3004">
+                            <div class="mt-1"><strong>loc_3004</strong></div>
+                        </div>
+                        <small>Zone QM1, Aisle 2, Shelf 2B</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Returns Workflow Tests -->
+        <div class="workflow-section">
+            <h3 class="text-danger">4. Returns Workflow (itm_ when no workflow active)</h3>
+            <p>Start by scanning an item when no workflow is active, then scan destination location.</p>
+            
+            <div class="test-sequence">
+                <h5>Test Sequence:</h5>
+                <ol>
+                    <li>Ensure no workflow is active (cancel any active workflow)</li>
+                    <li>Scan <code>itm_505</code> (Purple Device)</li>
+                    <li>Scan <code>loc_3004</code> (destination location)</li>
+                    <li>Click "Confirm Placement"</li>
+                </ol>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="barcode-container">
+                        <h5>Purple Device (Returns Item)</h5>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=itm_505&code=Code128&translate-esc=on" alt="itm_505">
+                            <div class="mt-2"><strong>itm_505</strong></div>
+                        </div>
+                        <small class="text-muted">SKU-PURPLE-005</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Testing -->
+        <div class="workflow-section">
+            <h3 class="text-secondary">5. Error Testing</h3>
+            <p>Test error handling by scanning wrong barcode types during active workflows.</p>
+            
+            <div class="test-sequence">
+                <h5>Error Test Sequence:</h5>
+                <ol>
+                    <li>Start picking workflow with <code>ord_1001</code></li>
+                    <li>Try scanning <code>stc_2001</code> → Should show "Item doesn't exist in order"</li>
+                    <li>Try scanning <code>loc_3001</code> → Should show "Item doesn't exist in order"</li>
+                    <li>Try scanning <code>ord_1002</code> → Should show "Item doesn't exist in order"</li>
+                    <li>Only <code>itm_</code> barcodes should work during picking</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- Quick Test Links -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Quick Test Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2 d-md-flex">
+                            <button class="btn btn-outline-primary" onclick="testPicking()">Test Picking</button>
+                            <button class="btn btn-outline-success" onclick="testStockCount()">Test Stock Count</button>
+                            <button class="btn btn-outline-warning" onclick="testLocationMove()">Test Location Move</button>
+                            <button class="btn btn-outline-danger" onclick="testReturns()">Test Returns</button>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            These buttons will automatically navigate to the scanner and simulate barcode scans.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="text-center text-muted">
+                    <small>
+                        Warehouse Scanner Test Barcodes • 
+                        <a href="index.html">Return to Scanner</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quick test functions
+        function testPicking() {
+            localStorage.setItem('autoTest', 'picking');
+            window.location.href = 'index.html';
+        }
+
+        function testStockCount() {
+            localStorage.setItem('autoTest', 'stockcount');
+            window.location.href = 'index.html';
+        }
+
+        function testLocationMove() {
+            localStorage.setItem('autoTest', 'locationmove');
+            window.location.href = 'index.html';
+        }
+
+        function testReturns() {
+            localStorage.setItem('autoTest', 'returns');
+            window.location.href = 'index.html';
+        }
+
+        // Copy barcode to clipboard when clicked
+        document.querySelectorAll('.barcode-image').forEach(element => {
+            element.style.cursor = 'pointer';
+            element.title = 'Click to copy barcode text';
+            
+            element.addEventListener('click', function() {
+                const text = this.querySelector('div strong').textContent;
+                navigator.clipboard.writeText(text).then(() => {
+                    // Visual feedback
+                    const original = this.style.backgroundColor;
+                    this.style.backgroundColor = '#28a745';
+                    this.style.color = 'white';
+                    
+                    setTimeout(() => {
+                        this.style.backgroundColor = original;
+                        this.style.color = '';
+                    }, 500);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,20 +1,66 @@
 {
   "name": "Warehouse Barcode Scanner",
-  "short_name": "Scanner",
-  "description": "Barcode scanner for warehouse workflows",
-  "start_url": "/",
+  "short_name": "Warehouse Scanner",
+  "description": "Mobile barcode scanner for warehouse operations including picking, stock counts, location moves, and returns",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "en-US",
+  "categories": ["productivity", "business", "utilities"],
   "icons": [
     {
-      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSIjMDA3YmZmIi8+CjxyZWN0IHg9IjQ4IiB5PSI0OCIgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjQiIGZpbGw9Im5vbmUiLz4KPHN2ZyB4PSI2NCIgeT0iNjQiIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJ3aGl0ZSI+CjxwYXRoIGQ9Ik0zIDVoMnYxNEgzVjV6bTQgMGgydjE0SDdWNXptMyAwaDJ2MTRIOS01WNXptNCAwaDJ2MTRoLTJWNXptMyAwaDJ2MTRoLTJWNXptNCAwaDJ2MTRoLTJWNXoiLz4KPC9zdmc+Cjwvc3ZnPgo=",
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMwMDdiZmYiLz4KPHJlY3QgeD0iMzIiIHk9IjQ4IiB3aWR0aD0iMTI4IiBoZWlnaHQ9Ijk2IiByeD0iOCIgZmlsbD0id2hpdGUiLz4KPHJlY3QgeD0iNDAiIHk9IjU2IiB3aWR0aD0iNCIgaGVpZ2h0PSI4MCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI0OCIgeT0iNTYiIHdpZHRoPSIyIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjU2IiB5PSI1NiIgd2lkdGg9IjQiIGhlaWdodD0iODAiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNjQiIHk9IjU2IiB3aWR0aD0iMiIgaGVpZ2h0PSI4MCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI3MiIgeT0iNTYiIHdpZHRoPSI2IiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjgwIiB5PSI1NiIgd2lkdGg9IjIiIGhlaWdodD0iODAiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iODgiIHk9IjU2IiB3aWR0aD0iNCIgaGVpZ2h0PSI4MCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI5NiIgeT0iNTYiIHdpZHRoPSIyIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjEwNCIgeT0iNTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjExMiIgeT0iNTYiIHdpZHRoPSIyIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjEyMCIgeT0iNTYiIHdpZHRoPSI2IiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjEyOCIgeT0iNTYiIHdpZHRoPSIyIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjEzNiIgeT0iNTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjE0NCIgeT0iNTYiIHdpZHRoPSIyIiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjE1MiIgeT0iNTYiIHdpZHRoPSI0IiBoZWlnaHQ9IjgwIiBmaWxsPSIjMDAwIi8+Cjx0ZXh0IHg9Ijk2IiB5PSIxNjgiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5TQ0FOTkVSPC90ZXh0Pgo8L3N2Zz4K",
       "sizes": "192x192",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iNjQiIGZpbGw9IiMwMDdiZmYiLz4KPHJlY3QgeD0iODYiIHk9IjEyOCIgd2lkdGg9IjM0MCIgaGVpZ2h0PSIyNTYiIHJ4PSIyMCIgZmlsbD0id2hpdGUiLz4KPHJlY3QgeD0iMTA2IiB5PSIxNDgiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMTYiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iMTI2IiB5PSIxNDgiIHdpZHRoPSI2IiBoZWlnaHQ9IjIxNiIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSIxNDYiIHk9IjE0OCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIxNiIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSIxNjYiIHk9IjE0OCIgd2lkdGg9IjYiIGhlaWdodD0iMjE2IiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjE4NiIgeT0iMTQ4IiB3aWR0aD0iMTQiIGhlaWdodD0iMjE2IiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjIwNiIgeT0iMTQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIyMTYiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iMjI2IiB5PSIxNDgiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMTYiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iMjQ2IiB5PSIxNDgiIHdpZHRoPSI2IiBoZWlnaHQ9IjIxNiIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSIyNjYiIHk9IjE0OCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIxNiIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSIyODYiIHk9IjE0OCIgd2lkdGg9IjYiIGhlaWdodD0iMjE2IiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjMwNiIgeT0iMTQ4IiB3aWR0aD0iMTQiIGhlaWdodD0iMjE2IiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjMyNiIgeT0iMTQ4IiB3aWR0aD0iNiIgaGVpZ2h0PSIyMTYiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iMzQ2IiB5PSIxNDgiIHdpZHRoPSIxMCIgaGVpZ2h0PSIyMTYiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iMzY2IiB5PSIxNDgiIHdpZHRoPSI2IiBoZWlnaHQ9IjIxNiIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSIzODYiIHk9IjE0OCIgd2lkdGg9IjEwIiBoZWlnaHQ9IjIxNiIgZmlsbD0iIzAwMCIvPgo8dGV4dCB4PSIyNTYiIHk9IjQ0MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjM2IiBmb250LXdlaWdodD0iYm9sZCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlNDQU5ORVI8L3RleHQ+Cjwvc3ZnPgo=",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
     }
   ],
-  "permissions": [
-    "camera"
-  ]
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjU2OCIgdmlld0JveD0iMCAwIDMyMCA1NjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iNTY4IiBmaWxsPSIjZjhmOWZhIi8+CjxyZWN0IHg9IjE2IiB5PSIxNiIgd2lkdGg9IjI4OCIgaGVpZ2h0PSI1MzYiIHJ4PSIxNiIgZmlsbD0id2hpdGUiIHN0cm9rZT0iI2RlZTJlNiIvPgo8dGV4dCB4PSIxNjAiIHk9IjUwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjMzMzIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5XYXJlaG91c2UgU2Nhbm5lcjwvdGV4dD4KPHJlY3QgeD0iMzIiIHk9IjgwIiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjE2MCIgcng9IjgiIGZpbGw9IiNmOGY5ZmEiIHN0cm9rZT0iI2RlZTJlNiIvPgo8dGV4dCB4PSIxNjAiIHk9IjE3MCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjNjY2IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5DYW1lcmEgVmlldyBBcmVhPC90ZXh0Pgo8cmVjdCB4PSIzMiIgeT0iMjYwIiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjEyMCIgcng9IjgiIGZpbGw9IiNlN2YzZmYiIHN0cm9rZT0iIzAwN2JmZiIvPgo8dGV4dCB4PSIxNjAiIHk9IjMzMCIgZm9udC1mYW1pbHk9IkFyaWFsLCBzYW5zLXNlcmlmIiBmb250LXNpemU9IjE2IiBmaWxsPSIjMDA3YmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5Xb3JrZmxvdyBBcmVhPC90ZXh0Pgo8cmVjdCB4PSIzMiIgeT0iNDAwIiB3aWR0aD0iMjU2IiBoZWlnaHQ9IjYwIiByeD0iOCIgZmlsbD0iI2Y4ZjlmYSIgc3Ryb2tlPSIjZGVlMmU2Ii8+Cjx0ZXh0IHg9IjE2MCIgeT0iNDQwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiM2NjYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk1hbnVhbCBJbnB1dDwvdGV4dD4KPC9zdmc+Cg==",
+      "sizes": "320x568",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Start Scanner",
+      "short_name": "Scan",
+      "description": "Start the barcode scanner",
+      "url": "./index.html?action=scan",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTIiIGZpbGw9IiMwMDdiZmYiLz4KPHJlY3QgeD0iMTYiIHk9IjI0IiB3aWR0aD0iNjQiIGhlaWdodD0iNDgiIHJ4PSI0IiBmaWxsPSJ3aGl0ZSIvPgo8cmVjdCB4PSIyMCIgeT0iMjgiIHdpZHRoPSIyIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjI0IiB5PSIyOCIgd2lkdGg9IjEiIGhlaWdodD0iNDAiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iMjgiIHk9IjI4IiB3aWR0aD0iMiIgaGVpZ2h0PSI0MCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSIzMiIgeT0iMjgiIHdpZHRoPSIxIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjM2IiB5PSIyOCIgd2lkdGg9IjMiIGhlaWdodD0iNDAiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNDAiIHk9IjI4IiB3aWR0aD0iMSIgaGVpZ2h0PSI0MCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI0NCIgeT0iMjgiIHdpZHRoPSIyIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjQ4IiB5PSIyOCIgd2lkdGg9IjEiIGhlaWdodD0iNDAiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNTIiIHk9IjI4IiB3aWR0aD0iMiIgaGVpZ2h0PSI0MCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI1NiIgeT0iMjgiIHdpZHRoPSIxIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjYwIiB5PSIyOCIgd2lkdGg9IjMiIGhlaWdodD0iNDAiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNjQiIHk9IjI4IiB3aWR0aD0iMSIgaGVpZ2h0PSI0MCIgZmlsbD0iIzAwMCIvPgo8cmVjdCB4PSI2OCIgeT0iMjgiIHdpZHRoPSIyIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDAwIi8+CjxyZWN0IHg9IjcyIiB5PSIyOCIgd2lkdGg9IjEiIGhlaWdodD0iNDAiIGZpbGw9IiMwMDAiLz4KPHJlY3QgeD0iNzYiIHk9IjI4IiB3aWR0aD0iMiIgaGVpZ2h0PSI0MCIgZmlsbD0iIzAwMCIvPgo8L3N2Zz4K",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Test Barcodes",
+      "short_name": "Test",
+      "description": "View test barcodes",
+      "url": "./test-barcodes.html",
+      "icons": [
+        {
+          "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIHZpZXdCb3g9IjAgMCA5NiA5NiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByeD0iMTIiIGZpbGw9IiMyOGE3NDUiLz4KPHJlY3QgeD0iMTYiIHk9IjE2IiB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSI4IiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSI0OCIgeT0iNTYiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiMyOGE3NDUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlQ8L3RleHQ+Cjwvc3ZnPgo=",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
 }
