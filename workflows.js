@@ -583,6 +583,14 @@ class WorkflowManager {
      * Complete picking order
      */
     completeOrder() {
+        // Check if any items are incomplete
+        const incompleteItems = this.workflowData.items.filter(item => item.quantity_picked < item.quantity_needed);
+        
+        if (incompleteItems.length > 0) {
+            const proceed = confirm(`${incompleteItems.length} items incomplete. Complete anyway?`);
+            if (!proceed) return;
+        }
+        
         // Reset order quantities for testing
         this.workflowData.items.forEach(item => {
             item.quantity_picked = 0;
@@ -595,6 +603,14 @@ class WorkflowManager {
      * Complete stock count
      */
     completeStockCount() {
+        // Check if any items are uncounted
+        const uncounteditems = this.workflowData.items.filter(item => item.counted_quantity === null);
+        
+        if (uncounteditems.length > 0) {
+            const proceed = confirm(`${uncounteditems.length} items not counted. Complete anyway?`);
+            if (!proceed) return;
+        }
+        
         // Reset stock count for testing
         this.workflowData.items.forEach(item => {
             item.counted_quantity = null;
@@ -607,6 +623,9 @@ class WorkflowManager {
      * Execute location move
      */
     executeMove(destinationLocationId) {
+        const proceed = confirm(`Confirm: Move ${this.moveItem.name} from ${this.moveSourceLocation.location_id} to ${destinationLocationId}?`);
+        if (!proceed) return;
+        
         this.showSuccess(`${this.moveItem.name} moved from ${this.moveSourceLocation.location_id} to ${destinationLocationId}`);
         this.resetWorkflow();
     }
@@ -615,6 +634,9 @@ class WorkflowManager {
      * Execute returns placement
      */
     executeReturns(locationId) {
+        const proceed = confirm(`Confirm: Place ${this.moveItem.name} in location ${locationId}?`);
+        if (!proceed) return;
+        
         this.showSuccess(`${this.moveItem.name} placed in location ${locationId}`);
         this.resetWorkflow();
     }
@@ -640,7 +662,7 @@ class WorkflowManager {
         
         this.hideCancelButton();
         this.workflowContent.innerHTML = '';
-        this.showInfo('Ready to scan - Point camera at barcode');
+        document.getElementById('status-row').style.display = 'none';
     }
 
     /**
@@ -660,20 +682,24 @@ class WorkflowManager {
     showSuccess(message) {
         this.statusArea.className = 'alert alert-success status-success';
         this.statusArea.textContent = message;
+        document.getElementById('status-row').style.display = 'block';
     }
 
     showError(message) {
         this.statusArea.className = 'alert alert-danger status-error';
         this.statusArea.textContent = message;
+        document.getElementById('status-row').style.display = 'block';
     }
 
     showWarning(message) {
         this.statusArea.className = 'alert alert-warning status-warning';
         this.statusArea.textContent = message;
+        document.getElementById('status-row').style.display = 'block';
     }
 
     showInfo(message) {
         this.statusArea.className = 'alert alert-info';
         this.statusArea.textContent = message;
+        document.getElementById('status-row').style.display = 'block';
     }
 }
