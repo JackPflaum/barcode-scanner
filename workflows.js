@@ -281,7 +281,7 @@ class WorkflowManager {
             
             html += `
                 <div class="col-12 mb-2">
-                    <div class="workflow-item ${progressClass} p-3 rounded">
+                    <div class="workflow-item ${progressClass} p-3 rounded" onclick="workflowManager.manualQuantityEntry('${item.barcode}')" style="cursor: pointer;">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>${item.name}</strong><br>
@@ -503,6 +503,33 @@ class WorkflowManager {
     }
 
     /**
+     * Manual quantity entry for picking workflow
+     */
+    manualQuantityEntry(itemBarcode) {
+        const userPin = prompt('Enter user PIN:');
+        if (userPin !== '1234') {
+            this.showError('Invalid PIN');
+            return;
+        }
+        
+        const orderItem = findItemInOrder(this.workflowData, itemBarcode);
+        if (!orderItem) return;
+        
+        const quantity = prompt(`Enter quantity for ${orderItem.name}:`, orderItem.quantity_picked.toString());
+        if (quantity !== null) {
+            const count = parseInt(quantity);
+            if (!isNaN(count) && count >= 0 && count <= orderItem.quantity_needed) {
+                orderItem.quantity_picked = count;
+                this.showSuccess(`Updated ${orderItem.name}: ${count}/${orderItem.quantity_needed}`);
+                this.renderPickingWorkflow();
+                this.checkOrderCompletion();
+            } else {
+                this.showError('Invalid quantity');
+            }
+        }
+    }
+
+    /**
      * Prompt for quantity input
      */
     promptForQuantity(stockItem) {
@@ -538,6 +565,10 @@ class WorkflowManager {
      * Complete picking order
      */
     completeOrder() {
+        // Reset order quantities for testing
+        this.workflowData.items.forEach(item => {
+            item.quantity_picked = 0;
+        });
         this.showSuccess(`Order ${this.workflowData.order_id} completed successfully!`);
         this.resetWorkflow();
     }
@@ -546,6 +577,10 @@ class WorkflowManager {
      * Complete stock count
      */
     completeStockCount() {
+        // Reset stock count for testing
+        this.workflowData.items.forEach(item => {
+            item.counted_quantity = null;
+        });
         this.showSuccess(`Stock count ${this.workflowData.stock_count_id} completed!`);
         this.resetWorkflow();
     }
