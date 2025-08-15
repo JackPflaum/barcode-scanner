@@ -57,11 +57,7 @@ async function toggleTorch() {
 // Barcode Handling
 async function handleBarcodeScan(barcode) {
   showNotification(`Scanned: ${barcode}`, 'info');
-  
-  // Add processing delay for better UX
-  setTimeout(async () => {
-    await workflowManager.handleBarcode(barcode);
-  }, 500);
+  await workflowManager.handleBarcode(barcode);
 }
 
 // Notification System
