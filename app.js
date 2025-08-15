@@ -117,12 +117,12 @@ window.addEventListener('error', function(e) {
 // Service Worker Registration (for PWA capabilities)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('sw.js')
+    navigator.serviceWorker.register('./sw.js')
       .then(function(registration) {
         console.log('ServiceWorker registration successful');
       })
       .catch(function(err) {
-        console.log('ServiceWorker registration failed');
+        console.log('ServiceWorker registration failed:', err);
       });
   });
 }
