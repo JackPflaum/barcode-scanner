@@ -222,6 +222,16 @@ function getItem(barcode) {
     return ITEMS[withPrefix] || null;
 }
 
+// Make functions globally available
+window.getItem = getItem;
+window.getOrder = getOrder;
+window.getStockCount = getStockCount;
+window.getLocation = getLocation;
+window.findItemInOrder = findItemInOrder;
+window.findItemInStockCount = findItemInStockCount;
+window.getBarcodePrefix = getBarcodePrefix;
+window.isValidBarcode = isValidBarcode;
+
 /**
  * Check if item exists in order
  * @param {object} order - Order object
