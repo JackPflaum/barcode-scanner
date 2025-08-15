@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>POC Barcode Scanner</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+<style>
+  #cameraContainer {
+    position: relative;
+    height: 50vh;
+    background: #000;
+    display: none;
+  }
+  video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  #workflowContainer {
+    padding: 1rem;
+  }
+</style>
+</head>
+<body class="bg-light">
+
+<div class="container-fluid p-3">
+  <h3>📦 Warehouse Scanner POC</h3>
+  <button id="toggleScanBtn" class="btn btn-primary mb-3">Start Scanning</button>
+  <button id="settingsBtn" class="btn btn-secondary mb-3">Settings</button>
+
+  <!-- Camera Half-Screen -->
+  <div id="cameraContainer">
+    <video id="camera" autoplay playsinline></video>
+  </div>
+
+  <!-- Workflow Content -->
+  <div id="workflowContainer" class="bg-white shadow rounded"></div>
+</div>
+
+<script>
+/* ---------- Fake Data ---------- */
+const fakeOrders = [
+  {
+    barcode_id: "ord_1001",
+    order_id: 1001,
+    items: [
+      {barcode: "itm_501", SKU: "SKU-RED-001", name: "Red Widget", location: "QM1-1-1A", qty_needed: 5, qty_scanned: 0},
+      {barcode: "itm_502", SKU: "SKU-BLU-002", name: "Blue Widget", location: "QM1-1-2B", qty_needed: 2, qty_scanned: 0}
+    ]
+  }
+];
+
+const fakeStockCounts = [
+  {
+    barcode_id: "stc_2001",
+    stock_count_id: 2001,
+    items: [
+      {barcode: "itm_501", SKU: "SKU-RED-001", name: "Red Widget", location: "QM1-1-1A"},
+      {barcode: "itm_502", SKU: "SKU-BLU-002", name: "Blue Widget", location: "QM1-1-2B"}
+    ]
+  }
+];
+
+const fakeLocations = [
+  {barcode: "loc_3001", location: "QM1-1-1A", items: ["itm_501", "itm_502"]},
+  {barcode: "loc_3002", location: "QM1-1-2B", items: []}
+];
+
+/* ---------- State ---------- */
+let scanning = false;
+let stream;
+
+/* ---------- UI Functions ---------- */
+function showNotification(msg, type = "info") {
+  const el = document.createElement("div");
+  el.className = `alert alert-${type} mt-2`;
+  el.textContent = msg;
+  document.getElementById("workflowContainer").prepend(el);
+  setTimeout(() => el.remove(), 3000);
+}
+
+function renderPickingSlip(order) {
+  let html = `<h5>Picking Slip - Order ${order.order_id}</h5><ul class="list-group">`;
+  order.items.forEach(item => {
+    html += `<li class="list-group-item d-flex justify-content-between">
+      ${item.name} (${item.SKU}) - Loc: ${item.location}
+      <span>${item.qty_scanned}/${item.qty_needed}</span>
+    </li>`;
+  });
+  html += `</ul>`;
+  document.getElementById("workflowContainer").innerHTML = html;
+}
+
+function renderStockCount(stockCount) {
+  let html = `<h5>Stock Count - ID ${stockCount.stock_count_id}</h5><ul class="list-group">`;
+  stockCount.items.forEach(item => {
+    html += `<li class="list-group-item">${item.name} (${item.SKU}) - Loc: ${item.location}</li>`;
+  });
+  html += `</ul>`;
+  document.getElementById("workflowContainer").innerHTML = html;
+}
+
+function renderLocationMove(location) {
+  document.getElementById("workflowContainer").innerHTML =
+    `<h5>Location: ${location.location}</h5>
+     <p>Items: ${location.items.join(", ") || "None"}</p>`;
+}
+
+/* ---------- Scanner Logic ---------- */
+async function startScanner() {
+  if (!('BarcodeDetector' in window)) {
+    alert("BarcodeDetector not supported. Try Chrome on Android.");
+    return;
+  }
+  const video = document.getElementById("camera");
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+    video.srcObject = stream;
+    scanning = true;
+    document.getElementById("cameraContainer").style.display = "block";
+    detectLoop();
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function detectLoop() {
+  const video = document.getElementById("camera");
+  const detector = new BarcodeDetector({ formats: ["code_128", "ean_13", "qr_code"] });
+  while (scanning) {
+    try {
+      const barcodes = await detector.detect(video);
+      if (barcodes.length > 0) {
+        handleBarcode(barcodes[0].rawValue);
+      }
+    } catch (err) {
+      console.error("Detection failed:", err);
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+}
+
+function stopScanner() {
+  scanning = false;
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+  }
+  document.getElementById("cameraContainer").style.display = "none";
+}
+
+/* ---------- Barcode Handling ---------- */
+function handleBarcode(code) {
+  stopScanner();
+  if (code.startsWith("ord_")) {
+    const order = fakeOrders.find(o => o.barcode_id === code);
+    if (order) {
+      showNotification("Order loaded", "success");
+      renderPickingSlip(order);
+    } else {
+      showNotification("Order not found", "danger");
+    }
+  }
+  else if (code.startsWith("stc_")) {
+    const sc = fakeStockCounts.find(s => s.barcode_id === code);
+    if (sc) {
+      showNotification("Stock count loaded", "success");
+      renderStockCount(sc);
+    } else {
+      showNotification("Stock count not found", "danger");
+    }
+  }
+  else if (code.startsWith("loc_")) {
+    const loc = fakeLocations.find(l => l.barcode === code);
+    if (loc) {
+      showNotification("Location loaded", "success");
+      renderLocationMove(loc);
+    } else {
+      showNotification("Location not found", "danger");
+    }
+  }
+  else {
+    showNotification("Unknown barcode type", "warning");
+  }
+}
+
+/* ---------- Event Listeners ---------- */
+document.getElementById("toggleScanBtn").addEventListener("click", () => {
+  if (!scanning) {
+    startScanner();
+  } else {
+    stopScanner();
+  }
+});
+
+document.getElementById("settingsBtn").addEventListener("click", () => {
+  alert("Settings UI not implemented yet (zoom/focus control placeholder)");
+});
+</script>
+</body>
+</html>
