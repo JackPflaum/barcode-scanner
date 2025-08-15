@@ -69,6 +69,12 @@ class WorkflowManager {
      * Handle barcode scans when no workflow is active
      */
     handleReadyState(barcode, prefix) {
+        // Check if it's a JSON order (QR code)
+        if (barcode.startsWith('{') && barcode.includes('order_id')) {
+            this.startPickingWorkflow(barcode);
+            return;
+        }
+        
         switch (prefix) {
             case 'ord_':
                 this.startPickingWorkflow(barcode);
@@ -89,10 +95,22 @@ class WorkflowManager {
      * Start Picking Workflow
      */
     startPickingWorkflow(orderBarcode) {
-        const order = getOrder(orderBarcode);
-        if (!order) {
-            this.showError('Order not found: ' + orderBarcode);
-            return;
+        let order;
+        
+        // Try to parse as JSON (QR code with embedded order data)
+        try {
+            order = JSON.parse(orderBarcode);
+            // Validate it's an order object
+            if (!order.order_id || !order.items) {
+                throw new Error('Invalid order format');
+            }
+        } catch (e) {
+            // Fallback to database lookup for ord_ prefixed barcodes
+            order = getOrder(orderBarcode);
+            if (!order) {
+                this.showError('Order not found: ' + orderBarcode);
+                return;
+            }
         }
 
         this.currentWorkflow = 'picking';

@@ -77,22 +77,36 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="barcode-container">
-                        <h5>Order 1001 - ACME Corp</h5>
+                        <h5>Order 1001 - ACME Corp (QR Code)</h5>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=ord_1001&code=Code128&translate-esc=on" alt="ord_1001">
-                            <div class="mt-2"><strong>ord_1001</strong></div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={%22order_id%22:1001,%22customer%22:%22ACME%20Corp%22,%22items%22:[{%22barcode%22:%22501%22,%22name%22:%22Red%20Widget%22,%22sku%22:%22SKU-RED-001%22,%22location%22:%22QM1-1-1A%22,%22quantity_needed%22:5,%22quantity_picked%22:0},{%22barcode%22:%22502%22,%22name%22:%22Blue%20Widget%22,%22sku%22:%22SKU-BLUE-002%22,%22location%22:%22QM1-1-2B%22,%22quantity_needed%22:2,%22quantity_picked%22:0}]}" alt="QR Order 1001">
+                            <div class="mt-2"><strong>QR Code Order</strong></div>
                         </div>
                         <small class="text-muted">2 items: Red Widget (5), Blue Widget (2)</small>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="barcode-container">
-                        <h5>Order 1002 - TechCorp Ltd</h5>
+                        <h5>Order 1002 - TechCorp Ltd (QR Code)</h5>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=ord_1002&code=Code128&translate-esc=on" alt="ord_1002">
-                            <div class="mt-2"><strong>ord_1002</strong></div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={%22order_id%22:1002,%22customer%22:%22TechCorp%20Ltd%22,%22items%22:[{%22barcode%22:%22503%22,%22name%22:%22Green%20Gadget%22,%22sku%22:%22SKU-GREEN-003%22,%22location%22:%22QM1-2-1A%22,%22quantity_needed%22:3,%22quantity_picked%22:0}]}" alt="QR Order 1002">
+                            <div class="mt-2"><strong>QR Code Order</strong></div>
                         </div>
                         <small class="text-muted">1 item: Green Gadget (3)</small>
+                    </div>
+                </div>
+            </div>
+            
+            <h5>Legacy Order Barcodes:</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="barcode-container">
+                        <h5>Order 1001 - Legacy Format</h5>
+                        <div class="barcode-image">
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=ord_1001&code=Code128&translate-esc=on" alt="ord_1001">
+                            <div class="mt-2"><strong>ord_1001</strong></div>
+                        </div>
+                        <small class="text-muted">Database lookup format</small>
                     </div>
                 </div>
             </div>
