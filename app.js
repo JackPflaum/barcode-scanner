@@ -6,8 +6,8 @@ document.addEventListener('DOMContentLoaded', function() {
   // Setup scanner callback
   scanner.onScan(handleBarcodeScan);
   
-  // Initialize workflow manager
-  workflowManager.renderDefaultView();
+  // Initialize simple workflow
+  simpleWorkflow.resetWorkflow();
 });
 
 // Scanner Controls
@@ -57,7 +57,7 @@ async function toggleTorch() {
 // Barcode Handling
 async function handleBarcodeScan(barcode) {
   showNotification(`Scanned: ${barcode}`, 'info');
-  await workflowManager.handleBarcode(barcode);
+  simpleWorkflow.handleScan(barcode);
 }
 
 // Notification System
