@@ -258,8 +258,9 @@ class WorkflowManager {
         this.workflowData = item;
         this.workflowState = 'returns';
         this.moveItem = item;
+        this.moveWorkflowStep = 'scan_source';
 
-        this.showInfo(`Scan the destination location for ${item.name}`);
+        this.showInfo(`Scan the location you are moving ${item.name} from`);
         this.showCancelButton();
         this.renderReturnsWorkflow();
     }
@@ -268,18 +269,22 @@ class WorkflowManager {
      * Handle returns workflow barcode scans
      */
     handleReturnsWorkflow(barcode, prefix) {
-        if (prefix !== 'loc_') {
-            this.showError('Please scan a location barcode (loc_)');
-            return;
+        switch (this.moveWorkflowStep) {
+            case 'scan_source':
+                if (prefix !== 'loc_') {
+                    this.showError('Please scan a location barcode (loc_)');
+                    return;
+                }
+                this.handleReturnsSourceScan(barcode);
+                break;
+            case 'scan_destination':
+                if (prefix !== 'loc_') {
+                    this.showError('Please scan a location barcode (loc_)');
+                    return;
+                }
+                this.handleReturnsDestinationScan(barcode);
+                break;
         }
-
-        const location = getLocation(barcode);
-        if (!location) {
-            this.showError('Location not found: ' + barcode);
-            return;
-        }
-
-        this.showReturnsConfirmation(location);
     }
 
     /**
@@ -375,13 +380,24 @@ class WorkflowManager {
      */
     renderReturnsWorkflow() {
         const item = this.workflowData;
+        let nextStep = '';
+        
+        switch (this.moveWorkflowStep) {
+            case 'scan_source':
+                nextStep = 'Scan source location';
+                break;
+            case 'scan_destination':
+                nextStep = 'Scan destination location';
+                break;
+        }
+        
         const html = `
             <div class="workflow-progress">
                 <h5>Returns Processing</h5>
                 <div class="alert alert-info">
                     <strong>Item:</strong> ${item.name}<br>
                     <strong>SKU:</strong> ${item.sku}<br>
-                    <strong>Next:</strong> Scan destination location
+                    <strong>Next:</strong> ${nextStep}
                 </div>
             </div>
         `;
@@ -497,6 +513,35 @@ class WorkflowManager {
     }
 
     /**
+     * Handle source location scan in returns workflow
+     */
+    handleReturnsSourceScan(locationBarcode) {
+        const location = getLocation(locationBarcode);
+        if (!location) {
+            this.showError('Location not found: ' + locationBarcode);
+            return;
+        }
+
+        this.moveSourceLocation = location;
+        this.moveWorkflowStep = 'scan_destination';
+        this.showInfo(`Now scan the destination location for ${this.moveItem.name}`);
+        this.renderReturnsWorkflow();
+    }
+
+    /**
+     * Handle destination location scan in returns workflow
+     */
+    handleReturnsDestinationScan(locationBarcode) {
+        const location = getLocation(locationBarcode);
+        if (!location) {
+            this.showError('Location not found: ' + locationBarcode);
+            return;
+        }
+
+        this.showReturnsConfirmation(location);
+    }
+
+    /**
      * Show returns confirmation
      */
     showReturnsConfirmation(location) {
@@ -504,12 +549,13 @@ class WorkflowManager {
             <div class="workflow-progress">
                 <h5>Confirm Returns</h5>
                 <div class="alert alert-warning">
-                    Place <strong>${this.moveItem.name}</strong><br>
-                    In location: <strong>${location.location_id}</strong>
+                    Move <strong>${this.moveItem.name}</strong><br>
+                    From: <strong>${this.moveSourceLocation.location_id}</strong><br>
+                    To: <strong>${location.location_id}</strong>
                 </div>
                 <div class="d-grid gap-2">
                     <button class="btn btn-success" onclick="workflowManager.executeReturns('${location.location_id}')">
-                        Confirm Placement
+                        Confirm Move
                     </button>
                     <button class="btn btn-secondary" onclick="workflowManager.cancelWorkflow()">
                         Cancel
