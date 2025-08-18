@@ -44,25 +44,16 @@
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-md-4">
+                                <div class="col-md-6">
                                     <label for="zoom-control" class="form-label">Zoom: <span id="zoom-value">1x</span></label>
                                     <input type="range" class="form-range" id="zoom-control" min="1" max="10" step="0.1" value="1">
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="focus-mode" class="form-label">Focus Mode:</label>
-                                    <select id="focus-mode" class="form-select form-select-sm">
-                                        <option value="continuous">Auto</option>
-                                        <option value="manual">Manual</option>
-                                    </select>
-                                    <label for="focus-distance" class="form-label mt-2">Distance: <span id="focus-value">Auto</span></label>
-                                    <input type="range" class="form-range" id="focus-distance" min="0" max="3" step="0.1" value="0" disabled>
-                                </div>
-                                <div class="col-md-4 d-flex align-items-end">
+                                <div class="col-md-6 d-flex align-items-end">
                                     <button id="flashlight-toggle" class="btn btn-outline-warning btn-sm me-2">
                                         💡 Flashlight
                                     </button>
                                     <button id="reset-zoom" class="btn btn-outline-secondary btn-sm">
-                                        Reset
+                                        Reset Zoom
                                     </button>
                                 </div>
                             </div>
