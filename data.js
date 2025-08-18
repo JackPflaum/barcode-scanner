@@ -220,6 +220,185 @@ function getItem(barcode) {
     return ITEMS[barcode] || null;
 }
 
+// QR Code Data - Contains full object data for QR scanning
+const QR_ORDERS = {
+    1001: {
+        order_id: 1001,
+        customer: 'ACME Corp',
+        items: [
+            {
+                barcode: '34623636436',
+                name: 'Red Widget',
+                sku: 'SKU-RED-001',
+                location: 'QM1-1-1A',
+                quantity_needed: 5,
+                quantity_picked: 0,
+                out_of_stock: false
+            },
+            {
+                barcode: '1234',
+                name: 'Blue Widget',
+                sku: 'SKU-BLUE-002',
+                location: 'QM1-1-2B',
+                quantity_needed: 2,
+                quantity_picked: 0,
+                out_of_stock: false
+            }
+        ]
+    },
+    1002: {
+        order_id: 1002,
+        customer: 'TechCorp Ltd',
+        items: [
+            {
+                barcode: '789ABC123XYZ',
+                name: 'Green Gadget',
+                sku: 'SKU-GREEN-003',
+                location: 'QM1-2-1A',
+                quantity_needed: 3,
+                quantity_picked: 0,
+                out_of_stock: false
+            }
+        ]
+    }
+};
+
+const QR_LOCATIONS = {
+    'QM1-1-1A': {
+        location_id: 'QM1-1-1A',
+        zone: 'QM1',
+        aisle: '1',
+        shelf: '1A',
+        capacity: 100,
+        current_items: ['34623636436', '1234']
+    },
+    'QM1-1-2B': {
+        location_id: 'QM1-1-2B',
+        zone: 'QM1',
+        aisle: '1',
+        shelf: '2B',
+        capacity: 50,
+        current_items: ['1234']
+    },
+    'QM1-2-1A': {
+        location_id: 'QM1-2-1A',
+        zone: 'QM1',
+        aisle: '2',
+        shelf: '1A',
+        capacity: 75,
+        current_items: ['789ABC123XYZ']
+    },
+    'QM1-2-2B': {
+        location_id: 'QM1-2-2B',
+        zone: 'QM1',
+        aisle: '2',
+        shelf: '2B',
+        capacity: 60,
+        current_items: []
+    }
+};
+
+const QR_ITEMS = {
+    '34623636436': {
+        barcode: '34623636436',
+        name: 'Red Widget',
+        sku: 'SKU-RED-001',
+        description: 'Premium red widget for industrial use',
+        weight: 0.5,
+        dimensions: '10x5x2 cm'
+    },
+    '1234': {
+        barcode: '1234',
+        name: 'Blue Widget',
+        sku: 'SKU-BLUE-002',
+        description: 'Standard blue widget for general applications',
+        weight: 0.3,
+        dimensions: '8x4x2 cm'
+    },
+    '789ABC123XYZ': {
+        barcode: '789ABC123XYZ',
+        name: 'Green Gadget',
+        sku: 'SKU-GREEN-003',
+        description: 'Advanced green gadget with multiple functions',
+        weight: 1.2,
+        dimensions: '15x8x5 cm'
+    },
+    'YLW-987654321': {
+        barcode: 'YLW-987654321',
+        name: 'Yellow Tool',
+        sku: 'SKU-YELLOW-004',
+        description: 'Precision yellow tool for specialized tasks',
+        weight: 0.8,
+        dimensions: '12x6x3 cm'
+    },
+    'PRP@456DEF789': {
+        barcode: 'PRP@456DEF789',
+        name: 'Purple Device',
+        sku: 'SKU-PURPLE-005',
+        description: 'Compact purple device for mobile operations',
+        weight: 0.4,
+        dimensions: '9x5x2 cm'
+    }
+};
+
+/**
+ * Parse QR code data and determine type
+ * @param {string} qrData - QR code data (JSON string or plain text)
+ * @returns {object} Parsed QR data with type and data properties
+ */
+function parseQRCode(qrData) {
+    try {
+        const parsed = JSON.parse(qrData);
+        
+        // Check if it's an order QR code
+        if (parsed.order_id && parsed.items) {
+            return { type: 'order', data: parsed };
+        }
+        
+        // Check if it's a location QR code
+        if (parsed.location_id && parsed.zone) {
+            return { type: 'location', data: parsed };
+        }
+        
+        // Check if it's an item QR code
+        if (parsed.barcode && parsed.sku) {
+            return { type: 'item', data: parsed };
+        }
+        
+        return { type: 'unknown', data: parsed };
+    } catch (e) {
+        // Not JSON, treat as regular barcode
+        return { type: 'barcode', data: qrData };
+    }
+}
+
+/**
+ * Get order from QR code data
+ * @param {object} qrOrderData - Parsed QR order data
+ * @returns {object} Order data compatible with existing system
+ */
+function getOrderFromQR(qrOrderData) {
+    return qrOrderData;
+}
+
+/**
+ * Get location from QR code data
+ * @param {object} qrLocationData - Parsed QR location data
+ * @returns {object} Location data compatible with existing system
+ */
+function getLocationFromQR(qrLocationData) {
+    return qrLocationData;
+}
+
+/**
+ * Get item from QR code data
+ * @param {object} qrItemData - Parsed QR item data
+ * @returns {object} Item data compatible with existing system
+ */
+function getItemFromQR(qrItemData) {
+    return qrItemData;
+}
+
 // Make functions globally available
 window.getItem = getItem;
 window.getOrder = getOrder;
@@ -229,6 +408,10 @@ window.findItemInOrder = findItemInOrder;
 window.findItemInStockCount = findItemInStockCount;
 window.getBarcodePrefix = getBarcodePrefix;
 window.isValidBarcode = isValidBarcode;
+window.parseQRCode = parseQRCode;
+window.getOrderFromQR = getOrderFromQR;
+window.getLocationFromQR = getLocationFromQR;
+window.getItemFromQR = getItemFromQR;
 
 /**
  * Check if item exists in order
