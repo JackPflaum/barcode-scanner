@@ -212,6 +212,9 @@ class BarcodeScanner {
         if (!capabilities.torch) {
             this.flashlightToggle.disabled = true;
             this.flashlightToggle.textContent = '💡 Not Available';
+        } else {
+            this.flashlightToggle.disabled = false;
+            this.flashlightToggle.textContent = '💡 OFF';
         }
     }
 
@@ -274,11 +277,18 @@ class BarcodeScanner {
      * Toggle device flashlight
      */
     async toggleFlashlight() {
-        if (!this.videoTrack) return;
+        if (!this.videoTrack) {
+            this.flashlightToggle.textContent = '💡 No Camera';
+            return;
+        }
 
         try {
             const capabilities = this.videoTrack.getCapabilities();
-            if (!capabilities.torch) return;
+            
+            if (!capabilities.torch) {
+                this.flashlightToggle.textContent = '💡 Not Supported';
+                return;
+            }
 
             const settings = this.videoTrack.getSettings();
             const newTorchState = !settings.torch;
@@ -297,7 +307,16 @@ class BarcodeScanner {
             }
 
         } catch (error) {
-            console.error('Failed to toggle flashlight:', error);
+            this.flashlightToggle.textContent = '💡 Error: ' + error.name;
+            // Try alternative approach
+            try {
+                await this.videoTrack.applyConstraints({
+                    torch: !this.videoTrack.getSettings().torch
+                });
+                this.flashlightToggle.textContent = '💡 ON (Alt)';
+            } catch (altError) {
+                this.flashlightToggle.textContent = '💡 Failed';
+            }
         }
     }
 
