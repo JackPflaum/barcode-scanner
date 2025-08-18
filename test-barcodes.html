@@ -70,7 +70,8 @@
                     <li>Scan <code>ord_1001</code> to load order</li>
                     <li>Scan <code>34623636436</code> five times (Red Widget)</li>
                     <li>Scan <code>1234</code> twice (Blue Widget)</li>
-                    <li>Click "Complete Order" when all items are picked</li>
+                    <li>Optional: Click "Mark Unavailable" to test out-of-stock functionality</li>
+                    <li>Click "Complete Order" when all items are picked or marked unavailable</li>
                 </ol>
             </div>
 
@@ -255,18 +256,28 @@
             </div>
         </div>
 
-        <!-- Returns Workflow Tests -->
+        <!-- Item Actions Tests -->
         <div class="workflow-section">
-            <h3 class="text-danger">4. Returns Workflow (item when no workflow active)</h3>
-            <p>Start by scanning an item when no workflow is active, then scan destination location.</p>
+            <h3 class="text-danger">4. Item Actions (item when no workflow active)</h3>
+            <p>Scan an item when no workflow is active to choose between returns or quantity update.</p>
             
             <div class="test-sequence">
-                <h5>Test Sequence:</h5>
+                <h5>Returns Test Sequence:</h5>
                 <ol>
                     <li>Ensure no workflow is active (cancel any active workflow)</li>
                     <li>Scan <code>PRP@456DEF789</code> (Purple Device)</li>
+                    <li>Click "Start Returns Process"</li>
+                    <li>Scan <code>loc_3001</code> (source location)</li>
                     <li>Scan <code>loc_3004</code> (destination location)</li>
-                    <li>Click "Confirm Placement"</li>
+                    <li>Click "Confirm Move"</li>
+                </ol>
+                <h5>Quantity Update Test Sequence:</h5>
+                <ol>
+                    <li>Ensure no workflow is active</li>
+                    <li>Scan <code>PRP@456DEF789</code> (Purple Device)</li>
+                    <li>Click "Update SKU Quantity"</li>
+                    <li>Enter new quantity in modal (e.g., 25)</li>
+                    <li>Click "OK" then "Confirm - Apply New Quantity"</li>
                 </ol>
             </div>
 
