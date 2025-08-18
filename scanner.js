@@ -148,9 +148,9 @@ class BarcodeScanner {
             const videoWidth = this.video.videoWidth;
             const videoHeight = this.video.videoHeight;
             
-            // Fixed center scan area (60% width, 40% height)
-            const scanWidth = videoWidth * 0.6;
-            const scanHeight = videoHeight * 0.4;
+            // Fixed center scan area (40% width, 30% height)
+            const scanWidth = videoWidth * 0.4;
+            const scanHeight = videoHeight * 0.3;
             const scanX = (videoWidth - scanWidth) / 2;
             const scanY = (videoHeight - scanHeight) / 2;
             
