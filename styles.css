@@ -21,6 +21,35 @@ body {
     animation: pulse 2s infinite;
 }
 
+/* Scan Target - Center Area Only */
+.scan-target {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 30%;
+    height: 30%;
+    border: 3px solid #ff0000;
+    border-radius: 8px;
+    background: rgba(255, 0, 0, 0.1);
+    pointer-events: none;
+    z-index: 10;
+}
+
+.scan-target::before {
+    content: 'SCAN AREA';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 0, 0, 0.8);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
 @keyframes pulse {
     0% { opacity: 0.6; }
     50% { opacity: 1; }
@@ -87,6 +116,11 @@ body {
     
     #video {
         max-height: 180px;
+    }
+    
+    .scan-target::before {
+        font-size: 8px;
+        padding: 1px 4px;
     }
     
     .btn {

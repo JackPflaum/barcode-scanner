@@ -135,40 +135,37 @@ class BarcodeScanner {
     }
 
     /**
-     * Detect barcodes in video stream
+     * Detect barcodes in video stream - center area only
      */
     async detectBarcodes() {
         if (!this.barcodeDetector || !this.video || this.video.readyState !== 4) return;
 
         try {
-            // Create canvas and crop to center area (simulating zoom effect)
+            // Create canvas for center area only
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
             const videoWidth = this.video.videoWidth;
             const videoHeight = this.video.videoHeight;
             
-            // Get current zoom level
-            const zoomLevel = parseFloat(this.zoomControl.value) || 1;
+            // Fixed center scan area (30% of video dimensions)
+            const scanWidth = videoWidth * 0.3;
+            const scanHeight = videoHeight * 0.3;
+            const scanX = (videoWidth - scanWidth) / 2;
+            const scanY = (videoHeight - scanHeight) / 2;
             
-            // Calculate crop area (center portion based on zoom)
-            const cropWidth = videoWidth / zoomLevel;
-            const cropHeight = videoHeight / zoomLevel;
-            const cropX = (videoWidth - cropWidth) / 2;
-            const cropY = (videoHeight - cropHeight) / 2;
+            // Set canvas to scan area size
+            canvas.width = scanWidth;
+            canvas.height = scanHeight;
             
-            // Set canvas size to cropped area
-            canvas.width = cropWidth;
-            canvas.height = cropHeight;
-            
-            // Draw only the cropped portion
+            // Draw only the center area
             ctx.drawImage(
                 this.video,
-                cropX, cropY, cropWidth, cropHeight,  // source crop area
-                0, 0, cropWidth, cropHeight           // destination
+                scanX, scanY, scanWidth, scanHeight,  // source: center area
+                0, 0, scanWidth, scanHeight           // destination: full canvas
             );
             
-            // Detect barcodes from the cropped canvas
+            // Detect barcodes only in center area
             const barcodes = await this.barcodeDetector.detect(canvas);
             
             if (barcodes.length > 0) {
@@ -191,7 +188,7 @@ class BarcodeScanner {
                     this.onScanCallback(barcode.rawValue);
                 }
 
-                console.log('Barcode detected:', barcode.rawValue);
+                console.log('Barcode detected in center area:', barcode.rawValue);
             }
         } catch (error) {
             // Silently handle detection errors to prevent flickering
