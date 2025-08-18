@@ -12,10 +12,6 @@ class WorkflowManager {
         this.moveSourceLocation = null;
         this.moveItem = null;
         
-        // Undo functionality
-        this.undoStack = [];
-        this.maxUndoSteps = 10;
-        
         this.initializeElements();
         this.setupEventListeners();
     }
@@ -27,7 +23,6 @@ class WorkflowManager {
         this.statusArea = document.getElementById('status-area');
         this.workflowContent = document.getElementById('workflow-content');
         this.cancelButton = document.getElementById('cancel-workflow');
-        this.undoButton = document.getElementById('undo-action');
     }
 
     /**
@@ -35,9 +30,6 @@ class WorkflowManager {
      */
     setupEventListeners() {
         this.cancelButton.addEventListener('click', () => this.cancelWorkflow());
-        if (this.undoButton) {
-            this.undoButton.addEventListener('click', () => this.undoLastAction());
-        }
     }
 
     /**
@@ -148,13 +140,6 @@ class WorkflowManager {
 
         // Increment picked quantity
         if (orderItem.quantity_picked < orderItem.quantity_needed) {
-            // Save state for undo
-            this.saveUndoState('pick_item', {
-                itemBarcode: barcode,
-                previousQuantity: orderItem.quantity_picked,
-                itemName: orderItem.name
-            });
-            
             orderItem.quantity_picked++;
             this.showSuccess(`Picked ${orderItem.name} (${orderItem.quantity_picked}/${orderItem.quantity_needed})`);
             this.renderPickingWorkflow();
@@ -532,11 +517,9 @@ class WorkflowManager {
             <div class="workflow-progress">
                 <h5>Stock Count ${stockCount.stock_count_id}</h5>
                 <p class="text-muted">Location: ${stockCount.location}</p>
-                ${pendingItems.length > 0 ? 
-                    `<div class="alert alert-info mb-3">
-                        <strong>Next:</strong> Scan item in stocktake to count
-                    </div>` : ''
-                }
+                <div class="alert alert-info mb-3">
+                    <strong>Next:</strong> ${pendingItems.length > 0 ? 'Scan item in stocktake to count' : 'All items counted - Complete count when ready'}
+                </div>
                 <div class="row">
         `;
 
@@ -800,13 +783,6 @@ class WorkflowManager {
         if (quantity !== null) {
             const count = parseInt(quantity);
             if (!isNaN(count) && count >= 0) {
-                // Save state for undo
-                this.saveUndoState('count_item', {
-                    itemBarcode: stockItem.barcode,
-                    previousQuantity: stockItem.counted_quantity,
-                    itemName: stockItem.name
-                });
-                
                 stockItem.counted_quantity = count;
                 this.showSuccess(`Counted ${stockItem.name}: ${count}`);
                 this.renderStockCountWorkflow();
@@ -912,9 +888,6 @@ class WorkflowManager {
         this.moveSourceLocation = null;
         this.moveItem = null;
         
-        // Clear undo stack
-        this.undoStack = [];
-        
         // Close any open modals
         const quantityModal = document.getElementById('quantityModal');
         if (quantityModal) {
@@ -926,7 +899,6 @@ class WorkflowManager {
         }
         
         this.hideCancelButton();
-        this.hideUndoButton();
         this.workflowContent.innerHTML = '';
         document.getElementById('status-row').style.display = 'none';
     }
@@ -942,20 +914,7 @@ class WorkflowManager {
         this.cancelButton.style.display = 'none';
     }
 
-    /**
-     * Show/hide undo button
-     */
-    showUndoButton() {
-        if (this.undoButton && this.undoStack.length > 0) {
-            this.undoButton.style.display = 'block';
-        }
-    }
 
-    hideUndoButton() {
-        if (this.undoButton) {
-            this.undoButton.style.display = 'none';
-        }
-    }
 
     /**
      * Status message helpers
@@ -996,69 +955,5 @@ class WorkflowManager {
         }, 2000);
     }
 
-    /**
-     * Undo functionality
-     */
-    saveUndoState(actionType, actionData) {
-        const undoState = {
-            actionType,
-            actionData,
-            workflowState: this.workflowState,
-            timestamp: Date.now()
-        };
-        
-        this.undoStack.push(undoState);
-        
-        // Limit undo stack size
-        if (this.undoStack.length > this.maxUndoSteps) {
-            this.undoStack.shift();
-        }
-        
-        this.showUndoButton();
-    }
 
-    undoLastAction() {
-        if (this.undoStack.length === 0) {
-            this.showWarning('No actions to undo');
-            return;
-        }
-
-        const lastAction = this.undoStack.pop();
-        
-        switch (lastAction.actionType) {
-            case 'pick_item':
-                this.undoPickItem(lastAction.actionData);
-                break;
-            case 'count_item':
-                this.undoCountItem(lastAction.actionData);
-                break;
-            default:
-                this.showWarning('Cannot undo this action');
-                return;
-        }
-        
-        // Update undo button visibility
-        if (this.undoStack.length === 0) {
-            this.hideUndoButton();
-        }
-    }
-
-    undoPickItem(actionData) {
-        const orderItem = findItemInOrder(this.workflowData, actionData.itemBarcode);
-        if (orderItem) {
-            orderItem.quantity_picked = actionData.previousQuantity;
-            this.showSuccess(`Undid pick: ${actionData.itemName} (${orderItem.quantity_picked}/${orderItem.quantity_needed})`);
-            this.renderPickingWorkflow();
-        }
-    }
-
-    undoCountItem(actionData) {
-        const stockItem = findItemInStockCount(this.workflowData, actionData.itemBarcode);
-        if (stockItem) {
-            stockItem.counted_quantity = actionData.previousQuantity;
-            const countText = actionData.previousQuantity === null ? 'not counted' : actionData.previousQuantity;
-            this.showSuccess(`Undid count: ${actionData.itemName} (${countText})`);
-            this.renderStockCountWorkflow();
-        }
-    }
 }
