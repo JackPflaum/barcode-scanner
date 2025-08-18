@@ -6,34 +6,25 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Camera Overlay */
-.scan-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 250px;
-    height: 150px;
-    border: 2px solid #00ff00;
-    border-radius: 8px;
-    background: rgba(0, 255, 0, 0.1);
-    pointer-events: none;
-    animation: pulse 2s infinite;
-}
-
 /* Scan Target - Center Area Only */
 .scan-target {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 30%;
-    height: 30%;
+    width: 60%;
+    height: 40%;
     border: 3px solid #ff0000;
     border-radius: 8px;
     background: rgba(255, 0, 0, 0.1);
     pointer-events: none;
     z-index: 10;
+    transition: all 0.3s ease;
+}
+
+.scan-target.detected {
+    border-color: #00ff00;
+    background: rgba(0, 255, 0, 0.2);
 }
 
 .scan-target::before {
@@ -48,6 +39,11 @@ body {
     border-radius: 4px;
     font-size: 10px;
     font-weight: bold;
+}
+
+.scan-target.detected::before {
+    background: rgba(0, 255, 0, 0.8);
+    content: 'DETECTED';
 }
 
 @keyframes pulse {

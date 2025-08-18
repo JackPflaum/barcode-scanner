@@ -148,9 +148,9 @@ class BarcodeScanner {
             const videoWidth = this.video.videoWidth;
             const videoHeight = this.video.videoHeight;
             
-            // Fixed center scan area (30% of video dimensions)
-            const scanWidth = videoWidth * 0.3;
-            const scanHeight = videoHeight * 0.3;
+            // Fixed center scan area (60% width, 40% height)
+            const scanWidth = videoWidth * 0.6;
+            const scanHeight = videoHeight * 0.4;
             const scanX = (videoWidth - scanWidth) / 2;
             const scanY = (videoHeight - scanHeight) / 2;
             
@@ -177,6 +177,7 @@ class BarcodeScanner {
                 
                 // Visual feedback
                 this.showScanSuccess();
+                this.showScanTargetDetection();
                 
                 // Haptic feedback
                 if (navigator.vibrate) {
@@ -312,6 +313,19 @@ class BarcodeScanner {
         setTimeout(() => {
             this.video.classList.remove('scan-success');
         }, 500);
+    }
+
+    /**
+     * Show scan target detection feedback
+     */
+    showScanTargetDetection() {
+        const scanTarget = document.getElementById('scan-target');
+        if (scanTarget) {
+            scanTarget.classList.add('detected');
+            setTimeout(() => {
+                scanTarget.classList.remove('detected');
+            }, 1000);
+        }
     }
 
     /**
