@@ -30,6 +30,9 @@ class BarcodeScanner {
         this.zoomValue = document.getElementById('zoom-value');
         this.flashlightToggle = document.getElementById('flashlight-toggle');
         this.resetZoomButton = document.getElementById('reset-zoom');
+        this.focusMode = document.getElementById('focus-mode');
+        this.focusDistance = document.getElementById('focus-distance');
+        this.focusValue = document.getElementById('focus-value');
     }
 
     /**
@@ -40,8 +43,8 @@ class BarcodeScanner {
         this.zoomControl.addEventListener('input', (e) => this.handleZoomChange(e));
         this.flashlightToggle.addEventListener('click', () => this.toggleFlashlight());
         this.resetZoomButton.addEventListener('click', () => this.resetZoom());
-        
-
+        this.focusMode.addEventListener('change', (e) => this.handleFocusModeChange(e));
+        this.focusDistance.addEventListener('input', (e) => this.handleFocusDistanceChange(e));
     }
 
     /**
@@ -217,6 +220,22 @@ class BarcodeScanner {
             this.flashlightToggle.disabled = false;
             this.flashlightToggle.textContent = '💡 OFF';
         }
+
+        // Setup focus control
+        if (capabilities.focusMode) {
+            this.focusMode.disabled = false;
+            if (capabilities.focusDistance) {
+                this.focusDistance.min = capabilities.focusDistance.min;
+                this.focusDistance.max = capabilities.focusDistance.max;
+                this.focusDistance.step = capabilities.focusDistance.step || 0.1;
+                const currentDistance = this.videoTrack.getSettings().focusDistance || capabilities.focusDistance.min;
+                this.focusDistance.value = currentDistance;
+                this.updateFocusDisplay(currentDistance);
+            }
+        } else {
+            this.focusMode.disabled = true;
+            this.focusDistance.disabled = true;
+        }
     }
 
     /**
@@ -271,6 +290,61 @@ class BarcodeScanner {
             await this.applyZoom(minZoom);
             this.updateZoomDisplay(minZoom);
             localStorage.setItem('camera-zoom', minZoom);
+        }
+    }
+
+    /**
+     * Handle focus mode changes
+     */
+    async handleFocusModeChange(event) {
+        const mode = event.target.value;
+        if (mode === 'manual') {
+            this.focusDistance.disabled = false;
+        } else {
+            this.focusDistance.disabled = true;
+            this.focusValue.textContent = 'Auto';
+        }
+        await this.applyFocus();
+    }
+
+    /**
+     * Handle focus distance changes
+     */
+    async handleFocusDistanceChange(event) {
+        const distance = parseFloat(event.target.value);
+        this.updateFocusDisplay(distance);
+        await this.applyFocus();
+    }
+
+    /**
+     * Apply focus constraints
+     */
+    async applyFocus() {
+        if (!this.videoTrack) return;
+
+        try {
+            const mode = this.focusMode.value;
+            const constraints = { advanced: [{ focusMode: mode }] };
+            
+            if (mode === 'manual' && !this.focusDistance.disabled) {
+                const distance = parseFloat(this.focusDistance.value);
+                constraints.advanced[0].focusDistance = distance;
+            }
+
+            await this.videoTrack.applyConstraints(constraints);
+        } catch (error) {
+            console.error('Failed to apply focus:', error);
+        }
+    }
+
+    /**
+     * Update focus display value
+     */
+    updateFocusDisplay(distance) {
+        if (this.focusMode.value === 'manual') {
+            this.focusValue.textContent = distance + 'm';
+        } else {
+            this.focusValue.textContent = 'Auto';
         }
     }
 
