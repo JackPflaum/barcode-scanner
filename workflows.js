@@ -526,10 +526,17 @@ class WorkflowManager {
      */
     renderStockCountWorkflow() {
         const stockCount = this.workflowData;
+        const pendingItems = stockCount.items.filter(item => item.counted_quantity === null);
+        
         let html = `
             <div class="workflow-progress">
                 <h5>Stock Count ${stockCount.stock_count_id}</h5>
                 <p class="text-muted">Location: ${stockCount.location}</p>
+                ${pendingItems.length > 0 ? 
+                    `<div class="alert alert-info mb-3">
+                        <strong>Next:</strong> Scan item in stocktake to count
+                    </div>` : ''
+                }
                 <div class="row">
         `;
 
