@@ -525,8 +525,8 @@ class WorkflowManager {
                         </div>
                         ${!isComplete ? 
                             `<div class="mt-2">
-                                <button class="btn ${isOutOfStock ? 'btn-warning' : 'btn-danger'} btn-sm" onclick="workflowManager.toggleOutOfStock('${item.barcode}')">
-                                    ${isOutOfStock ? 'Cancel Out of Stock' : 'Out of Stock'}
+                                <button class="btn ${isOutOfStock ? 'btn-success' : 'btn-outline-secondary'} btn-sm" onclick="workflowManager.toggleOutOfStock('${item.barcode}')">
+                                    ${isOutOfStock ? 'Mark Available' : 'Mark Unavailable'}
                                 </button>
                             </div>` : ''
                         }
