@@ -152,11 +152,24 @@ class WorkflowManager {
     }
 
     /**
+     * Mark item as out of stock
+     */
+    markOutOfStock(itemBarcode) {
+        const orderItem = findItemInOrder(this.workflowData, itemBarcode);
+        if (orderItem) {
+            orderItem.out_of_stock = true;
+            this.showWarning(`${orderItem.name} marked as out of stock`);
+            this.renderPickingWorkflow();
+            this.checkOrderCompletion();
+        }
+    }
+
+    /**
      * Check if picking order is complete
      */
     checkOrderCompletion() {
         const allComplete = this.workflowData.items.every(item => 
-            item.quantity_picked >= item.quantity_needed
+            item.quantity_picked >= item.quantity_needed || item.out_of_stock
         );
 
         if (allComplete) {
@@ -477,22 +490,33 @@ class WorkflowManager {
 
         order.items.forEach(item => {
             const isComplete = item.quantity_picked >= item.quantity_needed;
-            const progressClass = isComplete ? 'completed' : (item.quantity_picked > 0 ? 'in-progress' : '');
+            const isOutOfStock = item.out_of_stock;
+            const progressClass = isOutOfStock ? 'out-of-stock' : (isComplete ? 'completed' : (item.quantity_picked > 0 ? 'in-progress' : ''));
             
             html += `
                 <div class="col-12 mb-2">
-                    <div class="workflow-item ${progressClass} p-3 rounded" onclick="workflowManager.manualQuantityEntry('${item.barcode}')" style="cursor: pointer;">
+                    <div class="workflow-item ${progressClass} p-3 rounded">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <strong>${item.name}</strong><br>
                                 <small class="text-muted">${item.sku} • ${item.location}</small>
                             </div>
                             <div class="text-end">
-                                <div class="progress-circle ${isComplete ? 'completed' : (item.quantity_picked > 0 ? 'in-progress' : 'pending')}">
-                                    ${item.quantity_picked}/${item.quantity_needed}
-                                </div>
+                                ${isOutOfStock ? 
+                                    `<span class="badge bg-danger">Out of Stock</span>` :
+                                    `<div class="progress-circle ${isComplete ? 'completed' : (item.quantity_picked > 0 ? 'in-progress' : 'pending')}">
+                                        ${item.quantity_picked}/${item.quantity_needed}
+                                    </div>`
+                                }
                             </div>
                         </div>
+                        ${!isOutOfStock && !isComplete ? 
+                            `<div class="mt-2">
+                                <button class="btn btn-danger btn-sm" onclick="workflowManager.markOutOfStock('${item.barcode}')">
+                                    Out of Stock
+                                </button>
+                            </div>` : ''
+                        }
                     </div>
                 </div>
             `;

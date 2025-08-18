@@ -79,6 +79,11 @@ body {
     border-left-color: #ffc107;
 }
 
+.workflow-item.out-of-stock {
+    background-color: #f8d7da;
+    border-left-color: #dc3545;
+}
+
 /* Progress Indicators */
 .progress-circle {
     width: 40px;

@@ -15,7 +15,8 @@ const ORDERS = {
                 sku: 'SKU-RED-001',
                 location: 'QM1-1-1A',
                 quantity_needed: 5,
-                quantity_picked: 0
+                quantity_picked: 0,
+                out_of_stock: false
             },
             {
                 barcode: '1234',
@@ -23,7 +24,8 @@ const ORDERS = {
                 sku: 'SKU-BLUE-002',
                 location: 'QM1-1-2B',
                 quantity_needed: 2,
-                quantity_picked: 0
+                quantity_picked: 0,
+                out_of_stock: false
             }
         ]
     },
@@ -37,7 +39,8 @@ const ORDERS = {
                 sku: 'SKU-GREEN-003',
                 location: 'QM1-2-1A',
                 quantity_needed: 3,
-                quantity_picked: 0
+                quantity_picked: 0,
+                out_of_stock: false
             }
         ]
     }
