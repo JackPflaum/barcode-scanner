@@ -957,24 +957,36 @@ class WorkflowManager {
         this.statusArea.className = 'alert alert-success status-success';
         this.statusArea.textContent = message;
         document.getElementById('status-row').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('status-row').style.display = 'none';
+        }, 2000);
     }
 
     showError(message) {
         this.statusArea.className = 'alert alert-danger status-error';
         this.statusArea.textContent = message;
         document.getElementById('status-row').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('status-row').style.display = 'none';
+        }, 2000);
     }
 
     showWarning(message) {
         this.statusArea.className = 'alert alert-warning status-warning';
         this.statusArea.textContent = message;
         document.getElementById('status-row').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('status-row').style.display = 'none';
+        }, 2000);
     }
 
     showInfo(message) {
         this.statusArea.className = 'alert alert-info';
         this.statusArea.textContent = message;
         document.getElementById('status-row').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('status-row').style.display = 'none';
+        }, 2000);
     }
 
     /**
