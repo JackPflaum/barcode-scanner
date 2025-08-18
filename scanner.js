@@ -210,20 +210,12 @@ class BarcodeScanner {
         const capabilities = this.videoTrack.getCapabilities();
         console.log('Camera capabilities:', capabilities);
 
-        // Setup zoom control
-        if (capabilities.zoom) {
-            this.zoomControl.min = capabilities.zoom.min;
-            this.zoomControl.max = capabilities.zoom.max;
-            this.zoomControl.step = capabilities.zoom.step || 0.1;
-
-            // Load saved zoom level
-            const savedZoom = localStorage.getItem('camera-zoom') || capabilities.zoom.min;
-            this.zoomControl.value = savedZoom;
-            this.updateZoomDisplay(savedZoom);
-            this.applyZoom(parseFloat(savedZoom));
-        } else {
-            this.zoomControl.disabled = true;
-        }
+        // Setup software zoom control (always enabled)
+        this.zoomControl.min = 1;
+        this.zoomControl.max = 5;
+        this.zoomControl.step = 0.1;
+        this.zoomControl.value = 1;
+        this.updateZoomDisplay(1);
 
         // Setup flashlight control
         if (!capabilities.torch) {
@@ -233,8 +225,6 @@ class BarcodeScanner {
             this.flashlightToggle.disabled = false;
             this.flashlightToggle.textContent = '💡 OFF';
         }
-
-
     }
 
     /**
@@ -242,28 +232,11 @@ class BarcodeScanner {
      */
     async handleZoomChange(event) {
         const zoomLevel = parseFloat(event.target.value);
-        await this.applyZoom(zoomLevel);
         this.updateZoomDisplay(zoomLevel);
         localStorage.setItem('camera-zoom', zoomLevel);
     }
 
-    /**
-     * Apply zoom constraint to camera
-     */
-    async applyZoom(zoomLevel) {
-        if (!this.videoTrack) return;
 
-        try {
-            await this.videoTrack.applyConstraints({
-                advanced: [{ zoom: zoomLevel }]
-            });
-            
-            // Small delay to ensure zoom is applied before next detection
-            await new Promise(resolve => setTimeout(resolve, 100));
-        } catch (error) {
-            console.error('Failed to apply zoom:', error);
-        }
-    }
 
     /**
      * Update zoom display value
@@ -280,16 +253,9 @@ class BarcodeScanner {
      * Reset zoom to minimum level
      */
     async resetZoom() {
-        if (!this.videoTrack) return;
-
-        const capabilities = this.videoTrack.getCapabilities();
-        if (capabilities.zoom) {
-            const minZoom = capabilities.zoom.min;
-            this.zoomControl.value = minZoom;
-            await this.applyZoom(minZoom);
-            this.updateZoomDisplay(minZoom);
-            localStorage.setItem('camera-zoom', minZoom);
-        }
+        this.zoomControl.value = 1;
+        this.updateZoomDisplay(1);
+        localStorage.setItem('camera-zoom', 1);
     }
 
 
