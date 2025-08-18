@@ -69,24 +69,10 @@ class WorkflowManager {
      * Handle barcode scans when no workflow is active
      */
     handleReadyState(barcode, prefix) {
-        // Check if it's a QR code (JSON format)
-        if (barcode.startsWith('{')) {
-            const qrResult = parseQRCode(barcode);
-            
-            switch (qrResult.type) {
-                case 'order':
-                    this.startPickingWorkflow(barcode);
-                    return;
-                case 'location':
-                    this.startLocationMoveWorkflow(barcode);
-                    return;
-                case 'item':
-                    this.showItemActionPrompt(barcode);
-                    return;
-                default:
-                    this.showError('Unknown QR code format');
-                    return;
-            }
+        // Check if it's a JSON order (QR code)
+        if (barcode.startsWith('{') && barcode.includes('order_id')) {
+            this.startPickingWorkflow(barcode);
+            return;
         }
         
         switch (prefix) {
@@ -111,17 +97,15 @@ class WorkflowManager {
     startPickingWorkflow(orderBarcode) {
         let order;
         
-        // Check if it's a QR code (JSON format)
-        if (orderBarcode.startsWith('{')) {
-            const qrResult = parseQRCode(orderBarcode);
-            if (qrResult.type === 'order') {
-                order = getOrderFromQR(qrResult.data);
-            } else {
-                this.showError('Invalid QR code format for order');
-                return;
+        // Try to parse as JSON (QR code with embedded order data)
+        try {
+            order = JSON.parse(orderBarcode);
+            // Validate it's an order object
+            if (!order.order_id || !order.items) {
+                throw new Error('Invalid order format');
             }
-        } else {
-            // Traditional barcode lookup
+        } catch (e) {
+            // Fallback to database lookup for ord_ prefixed barcodes
             order = getOrder(orderBarcode);
             if (!order) {
                 this.showError('Order not found: ' + orderBarcode);
@@ -142,26 +126,13 @@ class WorkflowManager {
      * Handle picking workflow barcode scans
      */
     handlePickingWorkflow(barcode, prefix) {
-        let itemBarcode = barcode;
-        
-        // Check if it's a QR code (JSON format)
-        if (barcode.startsWith('{')) {
-            const qrResult = parseQRCode(barcode);
-            if (qrResult.type === 'item') {
-                itemBarcode = qrResult.data.barcode;
-            } else {
-                this.showError('Item doesn\'t exist in order');
-                return;
-            }
-        } else {
-            // Only allow items (non-prefixed) during picking
-            if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
-                this.showError('Item doesn\'t exist in order');
-                return;
-            }
+        // Only allow items (non-prefixed) during picking
+        if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
+            this.showError('Item doesn\'t exist in order');
+            return;
         }
 
-        const orderItem = findItemInOrder(this.workflowData, itemBarcode);
+        const orderItem = findItemInOrder(this.workflowData, barcode);
         if (!orderItem) {
             this.showError('Item doesn\'t appear in the order');
             return;
@@ -242,26 +213,13 @@ class WorkflowManager {
      * Handle stock count workflow barcode scans
      */
     handleStockCountWorkflow(barcode, prefix) {
-        let itemBarcode = barcode;
-        
-        // Check if it's a QR code (JSON format)
-        if (barcode.startsWith('{')) {
-            const qrResult = parseQRCode(barcode);
-            if (qrResult.type === 'item') {
-                itemBarcode = qrResult.data.barcode;
-            } else {
-                this.showError('Item doesn\'t exist in stock count');
-                return;
-            }
-        } else {
-            // Only allow items (non-prefixed) during stock count
-            if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
-                this.showError('Item doesn\'t exist in stock count');
-                return;
-            }
+        // Only allow items (non-prefixed) during stock count
+        if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
+            this.showError('Item doesn\'t exist in stock count');
+            return;
         }
 
-        const stockItem = findItemInStockCount(this.workflowData, itemBarcode);
+        const stockItem = findItemInStockCount(this.workflowData, barcode);
         if (!stockItem) {
             this.showError('Item not in this stock count');
             return;
@@ -275,24 +233,10 @@ class WorkflowManager {
      * Start Location Move Workflow
      */
     startLocationMoveWorkflow(locationBarcode) {
-        let location;
-        
-        // Check if it's a QR code (JSON format)
-        if (locationBarcode.startsWith('{')) {
-            const qrResult = parseQRCode(locationBarcode);
-            if (qrResult.type === 'location') {
-                location = getLocationFromQR(qrResult.data);
-            } else {
-                this.showError('Invalid QR code format for location');
-                return;
-            }
-        } else {
-            // Traditional barcode lookup
-            location = getLocation(locationBarcode);
-            if (!location) {
-                this.showError('Location not found: ' + locationBarcode);
-                return;
-            }
+        const location = getLocation(locationBarcode);
+        if (!location) {
+            this.showError('Location not found: ' + locationBarcode);
+            return;
         }
 
         this.currentWorkflow = 'locationmove';
@@ -310,28 +254,14 @@ class WorkflowManager {
     handleLocationMoveWorkflow(barcode, prefix) {
         switch (this.moveWorkflowStep) {
             case 'scan_item':
-                // Check if it's a QR code
-                if (barcode.startsWith('{')) {
-                    const qrResult = parseQRCode(barcode);
-                    if (qrResult.type !== 'item') {
-                        this.showError('Please scan an item to move');
-                        return;
-                    }
-                } else if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
+                if (prefix === 'ord_' || prefix === 'stc_' || prefix === 'loc_') {
                     this.showError('Please scan an item to move');
                     return;
                 }
                 this.handleMoveItemScan(barcode);
                 break;
             case 'scan_destination':
-                // Check if it's a QR code
-                if (barcode.startsWith('{')) {
-                    const qrResult = parseQRCode(barcode);
-                    if (qrResult.type !== 'location') {
-                        this.showError('Please scan a location barcode (loc_)');
-                        return;
-                    }
-                } else if (prefix !== 'loc_') {
+                if (prefix !== 'loc_') {
                     this.showError('Please scan a location barcode (loc_)');
                     return;
                 }
@@ -344,24 +274,10 @@ class WorkflowManager {
      * Show item action prompt (returns or quantity update)
      */
     showItemActionPrompt(itemBarcode) {
-        let item;
-        
-        // Check if it's a QR code (JSON format)
-        if (itemBarcode.startsWith('{')) {
-            const qrResult = parseQRCode(itemBarcode);
-            if (qrResult.type === 'item') {
-                item = getItemFromQR(qrResult.data);
-            } else {
-                this.showError('Invalid QR code format for item');
-                return;
-            }
-        } else {
-            // Traditional barcode lookup
-            item = getItem(itemBarcode);
-            if (!item) {
-                this.showError('Item not found: ' + itemBarcode);
-                return;
-            }
+        const item = getItem(itemBarcode);
+        if (!item) {
+            this.showError('Item not found: ' + itemBarcode);
+            return;
         }
 
         this.workflowData = item;
@@ -376,10 +292,10 @@ class WorkflowManager {
                     <strong>Description:</strong> ${item.description || 'N/A'}
                 </div>
                 <div class="d-grid gap-2">
-                    <button class="btn btn-primary" onclick="workflowManager.startReturnsWorkflow('${item.barcode}')">
+                    <button class="btn btn-primary" onclick="workflowManager.startReturnsWorkflow('${itemBarcode}')">
                         Start Returns Process
                     </button>
-                    <button class="btn btn-success" onclick="workflowManager.startQuantityUpdate('${item.barcode}')">
+                    <button class="btn btn-success" onclick="workflowManager.startQuantityUpdate('${itemBarcode}')">
                         Update SKU Quantity
                     </button>
                     <button class="btn btn-secondary" onclick="workflowManager.resetWorkflow()">
@@ -558,28 +474,14 @@ class WorkflowManager {
     handleReturnsWorkflow(barcode, prefix) {
         switch (this.moveWorkflowStep) {
             case 'scan_source':
-                // Check if it's a QR code
-                if (barcode.startsWith('{')) {
-                    const qrResult = parseQRCode(barcode);
-                    if (qrResult.type !== 'location') {
-                        this.showError('Please scan a location barcode (loc_)');
-                        return;
-                    }
-                } else if (prefix !== 'loc_') {
+                if (prefix !== 'loc_') {
                     this.showError('Please scan a location barcode (loc_)');
                     return;
                 }
                 this.handleReturnsSourceScan(barcode);
                 break;
             case 'scan_destination':
-                // Check if it's a QR code
-                if (barcode.startsWith('{')) {
-                    const qrResult = parseQRCode(barcode);
-                    if (qrResult.type !== 'location') {
-                        this.showError('Please scan a location barcode (loc_)');
-                        return;
-                    }
-                } else if (prefix !== 'loc_') {
+                if (prefix !== 'loc_') {
                     this.showError('Please scan a location barcode (loc_)');
                     return;
                 }
@@ -768,23 +670,10 @@ class WorkflowManager {
      * Handle item scan in location move workflow
      */
     handleMoveItemScan(itemBarcode) {
-        let item;
-        
-        // Check if it's a QR code (JSON format)
-        if (itemBarcode.startsWith('{')) {
-            const qrResult = parseQRCode(itemBarcode);
-            if (qrResult.type === 'item') {
-                item = getItemFromQR(qrResult.data);
-            } else {
-                this.showError('Invalid QR code format for item');
-                return;
-            }
-        } else {
-            item = getItem(itemBarcode);
-            if (!item) {
-                this.showError('Item not found: ' + itemBarcode);
-                return;
-            }
+        const item = getItem(itemBarcode);
+        if (!item) {
+            this.showError('Item not found: ' + itemBarcode);
+            return;
         }
 
         this.moveItem = item;
@@ -808,23 +697,10 @@ class WorkflowManager {
      * Handle destination scan in location move workflow
      */
     handleMoveDestinationScan(locationBarcode) {
-        let location;
-        
-        // Check if it's a QR code (JSON format)
-        if (locationBarcode.startsWith('{')) {
-            const qrResult = parseQRCode(locationBarcode);
-            if (qrResult.type === 'location') {
-                location = getLocationFromQR(qrResult.data);
-            } else {
-                this.showError('Invalid QR code format for location');
-                return;
-            }
-        } else {
-            location = getLocation(locationBarcode);
-            if (!location) {
-                this.showError('Location not found: ' + locationBarcode);
-                return;
-            }
+        const location = getLocation(locationBarcode);
+        if (!location) {
+            this.showError('Location not found: ' + locationBarcode);
+            return;
         }
 
         this.showMoveConfirmation(location);
@@ -859,23 +735,10 @@ class WorkflowManager {
      * Handle source location scan in returns workflow
      */
     handleReturnsSourceScan(locationBarcode) {
-        let location;
-        
-        // Check if it's a QR code (JSON format)
-        if (locationBarcode.startsWith('{')) {
-            const qrResult = parseQRCode(locationBarcode);
-            if (qrResult.type === 'location') {
-                location = getLocationFromQR(qrResult.data);
-            } else {
-                this.showError('Invalid QR code format for location');
-                return;
-            }
-        } else {
-            location = getLocation(locationBarcode);
-            if (!location) {
-                this.showError('Location not found: ' + locationBarcode);
-                return;
-            }
+        const location = getLocation(locationBarcode);
+        if (!location) {
+            this.showError('Location not found: ' + locationBarcode);
+            return;
         }
 
         this.moveSourceLocation = location;
@@ -888,23 +751,10 @@ class WorkflowManager {
      * Handle destination location scan in returns workflow
      */
     handleReturnsDestinationScan(locationBarcode) {
-        let location;
-        
-        // Check if it's a QR code (JSON format)
-        if (locationBarcode.startsWith('{')) {
-            const qrResult = parseQRCode(locationBarcode);
-            if (qrResult.type === 'location') {
-                location = getLocationFromQR(qrResult.data);
-            } else {
-                this.showError('Invalid QR code format for location');
-                return;
-            }
-        } else {
-            location = getLocation(locationBarcode);
-            if (!location) {
-                this.showError('Location not found: ' + locationBarcode);
-                return;
-            }
+        const location = getLocation(locationBarcode);
+        if (!location) {
+            this.showError('Location not found: ' + locationBarcode);
+            return;
         }
 
         this.showReturnsConfirmation(location);

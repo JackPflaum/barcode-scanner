@@ -55,9 +55,6 @@
                 <div class="alert alert-info">
                     <strong>Instructions:</strong> Use these barcodes to test the scanner application. 
                     Point your camera at the barcode text below, or manually enter the codes.
-                    <br><br>
-                    <strong>QR Codes vs 1D Barcodes:</strong> QR codes contain full data (no database lookup needed) 
-                    and scan better when small or blurry. 1D barcodes require database lookup but are more compact.
                 </div>
             </div>
         </div>
@@ -68,15 +65,14 @@
             <p>Start by scanning an order barcode, then scan items to pick.</p>
             
             <div class="test-sequence">
-                <h5>Test Sequence (try QR codes first):</h5>
+                <h5>Test Sequence:</h5>
                 <ol>
-                    <li>Scan QR code for Order 1001 (contains full order data)</li>
-                    <li>Scan QR codes for Red Widget five times</li>
-                    <li>Scan QR codes for Blue Widget twice</li>
+                    <li>Scan <code>ord_1001</code> to load order</li>
+                    <li>Scan <code>34623636436</code> five times (Red Widget)</li>
+                    <li>Scan <code>1234</code> twice (Blue Widget)</li>
                     <li>Optional: Click "Mark Unavailable" to test out-of-stock functionality</li>
                     <li>Click "Complete Order" when all items are picked or marked unavailable</li>
                 </ol>
-                <p><small class="text-muted">If QR codes don't scan well, try the legacy 1D barcodes below.</small></p>
             </div>
 
             <div class="row">
@@ -116,51 +112,7 @@
                 </div>
             </div>
 
-            <h5>Items for Picking (QR Codes):</h5>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Red Widget - QR Code</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22barcode%22:%2234623636436%22,%22name%22:%22Red%20Widget%22,%22sku%22:%22SKU-RED-001%22,%22description%22:%22Premium%20red%20widget%20for%20industrial%20use%22,%22weight%22:0.5,%22dimensions%22:%2210x5x2%20cm%22}" alt="Red Widget QR">
-                            <div class="mt-1"><strong>QR: Red Widget</strong></div>
-                        </div>
-                        <small>SKU-RED-001 • 34623636436</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Blue Widget - QR Code</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22barcode%22:%221234%22,%22name%22:%22Blue%20Widget%22,%22sku%22:%22SKU-BLUE-002%22,%22description%22:%22Standard%20blue%20widget%20for%20general%20applications%22,%22weight%22:0.3,%22dimensions%22:%228x4x2%20cm%22}" alt="Blue Widget QR">
-                            <div class="mt-1"><strong>QR: Blue Widget</strong></div>
-                        </div>
-                        <small>SKU-BLUE-002 • 1234</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Green Gadget - QR Code</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22barcode%22:%22789ABC123XYZ%22,%22name%22:%22Green%20Gadget%22,%22sku%22:%22SKU-GREEN-003%22,%22description%22:%22Advanced%20green%20gadget%20with%20multiple%20functions%22,%22weight%22:1.2,%22dimensions%22:%2215x8x5%20cm%22}" alt="Green Gadget QR">
-                            <div class="mt-1"><strong>QR: Green Gadget</strong></div>
-                        </div>
-                        <small>SKU-GREEN-003 • 789ABC123XYZ</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Yellow Tool - QR Code</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22barcode%22:%22YLW-987654321%22,%22name%22:%22Yellow%20Tool%22,%22sku%22:%22SKU-YELLOW-004%22,%22description%22:%22Precision%20yellow%20tool%20for%20specialized%20tasks%22,%22weight%22:0.8,%22dimensions%22:%2212x6x3%20cm%22}" alt="Yellow Tool QR">
-                            <div class="mt-1"><strong>QR: Yellow Tool</strong></div>
-                        </div>
-                        <small>SKU-YELLOW-004 • YLW-987654321</small>
-                    </div>
-                </div>
-            </div>
-            
-            <h5>Items for Picking (Legacy 1D Barcodes):</h5>
+            <h5>Items for Picking:</h5>
             <div class="row">
                 <div class="col-md-3">
                     <div class="barcode-container">
@@ -260,51 +212,6 @@
                 </ol>
             </div>
 
-            <h5>Location QR Codes:</h5>
-            <div class="row">
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Location QM1-1-1A - QR</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22location_id%22:%22QM1-1-1A%22,%22zone%22:%22QM1%22,%22aisle%22:%221%22,%22shelf%22:%221A%22,%22capacity%22:100,%22current_items%22:[%2234623636436%22,%221234%22]}" alt="QM1-1-1A QR">
-                            <div class="mt-1"><strong>QR: QM1-1-1A</strong></div>
-                        </div>
-                        <small>Zone QM1, Aisle 1, Shelf 1A</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Location QM1-1-2B - QR</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22location_id%22:%22QM1-1-2B%22,%22zone%22:%22QM1%22,%22aisle%22:%221%22,%22shelf%22:%222B%22,%22capacity%22:50,%22current_items%22:[%221234%22]}" alt="QM1-1-2B QR">
-                            <div class="mt-1"><strong>QR: QM1-1-2B</strong></div>
-                        </div>
-                        <small>Zone QM1, Aisle 1, Shelf 2B</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Location QM1-2-1A - QR</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22location_id%22:%22QM1-2-1A%22,%22zone%22:%22QM1%22,%22aisle%22:%222%22,%22shelf%22:%221A%22,%22capacity%22:75,%22current_items%22:[%22789ABC123XYZ%22]}" alt="QM1-2-1A QR">
-                            <div class="mt-1"><strong>QR: QM1-2-1A</strong></div>
-                        </div>
-                        <small>Zone QM1, Aisle 2, Shelf 1A</small>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="barcode-container">
-                        <h6>Location QM1-2-2B - QR</h6>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22location_id%22:%22QM1-2-2B%22,%22zone%22:%22QM1%22,%22aisle%22:%222%22,%22shelf%22:%222B%22,%22capacity%22:60,%22current_items%22:[]}" alt="QM1-2-2B QR">
-                            <div class="mt-1"><strong>QR: QM1-2-2B</strong></div>
-                        </div>
-                        <small>Zone QM1, Aisle 2, Shelf 2B</small>
-                    </div>
-                </div>
-            </div>
-            
-            <h5>Location Legacy Barcodes:</h5>
             <div class="row">
                 <div class="col-md-3">
                     <div class="barcode-container">
@@ -377,17 +284,7 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="barcode-container">
-                        <h5>Purple Device - QR Code</h5>
-                        <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={%22barcode%22:%22PRP@456DEF789%22,%22name%22:%22Purple%20Device%22,%22sku%22:%22SKU-PURPLE-005%22,%22description%22:%22Compact%20purple%20device%20for%20mobile%20operations%22,%22weight%22:0.4,%22dimensions%22:%229x5x2%20cm%22}" alt="Purple Device QR">
-                            <div class="mt-2"><strong>QR: Purple Device</strong></div>
-                        </div>
-                        <small class="text-muted">SKU-PURPLE-005 • PRP@456DEF789</small>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="barcode-container">
-                        <h5>Purple Device - Legacy Barcode</h5>
+                        <h5>Purple Device (Returns Item)</h5>
                         <div class="barcode-image">
                             <img src="https://barcode.tec-it.com/barcode.ashx?data=PRP%40456DEF789&code=Code128&translate-esc=on" alt="PRP@456DEF789">
                             <div class="mt-2"><strong>PRP@456DEF789</strong></div>
