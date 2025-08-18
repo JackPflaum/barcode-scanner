@@ -148,9 +148,9 @@ class BarcodeScanner {
             const videoWidth = this.video.videoWidth;
             const videoHeight = this.video.videoHeight;
             
-            // Fixed center scan area (80% width, 50% height)
-            const scanWidth = videoWidth * 0.8;
-            const scanHeight = videoHeight * 0.5;
+            // Fixed center scan area (40% width, 30% height)
+            const scanWidth = videoWidth * 0.4;
+            const scanHeight = videoHeight * 0.3;
             const scanX = (videoWidth - scanWidth) / 2;
             const scanY = (videoHeight - scanHeight) / 2;
             
@@ -172,7 +172,27 @@ class BarcodeScanner {
                 const now = Date.now();
                 if (now - this.lastScanTime < this.scanCooldown) return;
 
-                const barcode = barcodes[0];
+                // Find the most centered barcode
+                const centerX = scanWidth / 2;
+                const centerY = scanHeight / 2;
+                
+                let closestBarcode = barcodes[0];
+                let minDistance = Infinity;
+                
+                for (const bc of barcodes) {
+                    const bcCenterX = bc.boundingBox.x + bc.boundingBox.width / 2;
+                    const bcCenterY = bc.boundingBox.y + bc.boundingBox.height / 2;
+                    const distance = Math.sqrt(
+                        Math.pow(bcCenterX - centerX, 2) + Math.pow(bcCenterY - centerY, 2)
+                    );
+                    
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        closestBarcode = bc;
+                    }
+                }
+                
+                const barcode = closestBarcode;
                 this.lastScanTime = now;
                 
                 // Visual feedback
