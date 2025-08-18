@@ -79,12 +79,13 @@ class BarcodeScanner {
                 formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix']
             });
 
-            // Get camera stream
+            // Get camera stream with torch capability
             this.stream = await navigator.mediaDevices.getUserMedia({
                 video: {
                     facingMode: 'environment',
                     width: { ideal: 1280 },
-                    height: { ideal: 720 }
+                    height: { ideal: 720 },
+                    torch: false
                 }
             });
 
