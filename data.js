@@ -18,7 +18,7 @@ const ORDERS = {
                 quantity_picked: 0
             },
             {
-                barcode: '123',
+                barcode: '1234',
                 name: 'Blue Widget',
                 sku: 'SKU-BLUE-002',
                 location: 'QM1-1-2B',
@@ -88,7 +88,7 @@ const LOCATIONS = {
         aisle: '1',
         shelf: '1A',
         capacity: 100,
-        current_items: ['34623636436', '123']
+        current_items: ['34623636436', '1234']
     },
     'loc_3002': {
         location_id: 'QM1-1-2B',
@@ -96,7 +96,7 @@ const LOCATIONS = {
         aisle: '1',
         shelf: '2B',
         capacity: 50,
-        current_items: ['123']
+        current_items: ['1234']
     },
     'loc_3003': {
         location_id: 'QM1-2-1A',
@@ -126,8 +126,8 @@ const ITEMS = {
         weight: 0.5,
         dimensions: '10x5x2 cm'
     },
-    '123': {
-        barcode: '123',
+    '1234': {
+        barcode: '1234',
         name: 'Blue Widget',
         sku: 'SKU-BLUE-002',
         description: 'Standard blue widget for general applications',
@@ -214,12 +214,7 @@ function getLocation(barcode) {
  * @returns {object|null} Item data or null if not found
  */
 function getItem(barcode) {
-    // First try direct lookup
-    if (ITEMS[barcode]) return ITEMS[barcode];
-    
-    // Then try with itm_ prefix for backward compatibility
-    const withPrefix = 'itm_' + barcode;
-    return ITEMS[withPrefix] || null;
+    return ITEMS[barcode] || null;
 }
 
 // Make functions globally available
@@ -240,10 +235,7 @@ window.isValidBarcode = isValidBarcode;
  */
 function findItemInOrder(order, itemBarcode) {
     if (!order || !order.items) return null;
-    return order.items.find(item => 
-        item.barcode === itemBarcode || 
-        item.barcode === 'itm_' + itemBarcode
-    ) || null;
+    return order.items.find(item => item.barcode === itemBarcode) || null;
 }
 
 /**
@@ -254,8 +246,5 @@ function findItemInOrder(order, itemBarcode) {
  */
 function findItemInStockCount(stockCount, itemBarcode) {
     if (!stockCount || !stockCount.items) return null;
-    return stockCount.items.find(item => 
-        item.barcode === itemBarcode || 
-        item.barcode === 'itm_' + itemBarcode
-    ) || null;
+    return stockCount.items.find(item => item.barcode === itemBarcode) || null;
 }

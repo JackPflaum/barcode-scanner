@@ -634,8 +634,8 @@ class WorkflowManager {
      * Execute returns placement
      */
     executeReturns(locationId) {
-        const proceed = confirm(`Confirm: Place ${this.moveItem.name} in location ${locationId}?`);
-        if (!proceed) return;
+        // const proceed = confirm(`Confirm: Place ${this.moveItem.name} in location ${locationId}?`);
+        // if (!proceed) return;
         
         this.showSuccess(`${this.moveItem.name} placed in location ${locationId}`);
         this.resetWorkflow();

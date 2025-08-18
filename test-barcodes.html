@@ -69,7 +69,7 @@
                 <ol>
                     <li>Scan <code>ord_1001</code> to load order</li>
                     <li>Scan <code>34623636436</code> five times (Red Widget)</li>
-                    <li>Scan <code>123</code> twice (Blue Widget)</li>
+                    <li>Scan <code>1234</code> twice (Blue Widget)</li>
                     <li>Click "Complete Order" when all items are picked</li>
                 </ol>
             </div>
@@ -79,7 +79,7 @@
                     <div class="barcode-container">
                         <h5>Order 1001 - ACME Corp (QR Code)</h5>
                         <div class="barcode-image">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={%22order_id%22:1001,%22customer%22:%22ACME%20Corp%22,%22items%22:[{%22barcode%22:%2234623636436%22,%22name%22:%22Red%20Widget%22,%22sku%22:%22SKU-RED-001%22,%22location%22:%22QM1-1-1A%22,%22quantity_needed%22:5,%22quantity_picked%22:0},{%22barcode%22:%22123%22,%22name%22:%22Blue%20Widget%22,%22sku%22:%22SKU-BLUE-002%22,%22location%22:%22QM1-1-2B%22,%22quantity_needed%22:2,%22quantity_picked%22:0}]}" alt="QR Order 1001">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={%22order_id%22:1001,%22customer%22:%22ACME%20Corp%22,%22items%22:[{%22barcode%22:%2234623636436%22,%22name%22:%22Red%20Widget%22,%22sku%22:%22SKU-RED-001%22,%22location%22:%22QM1-1-1A%22,%22quantity_needed%22:5,%22quantity_picked%22:0},{%22barcode%22:%221234%22,%22name%22:%22Blue%20Widget%22,%22sku%22:%22SKU-BLUE-002%22,%22location%22:%22QM1-1-2B%22,%22quantity_needed%22:2,%22quantity_picked%22:0}]}" alt="QR Order 1001">
                             <div class="mt-2"><strong>QR Code Order</strong></div>
                         </div>
                         <small class="text-muted">2 items: Red Widget (5), Blue Widget (2)</small>
@@ -127,8 +127,8 @@
                     <div class="barcode-container">
                         <h6>Blue Widget</h6>
                         <div class="barcode-image">
-                            <img src="https://barcode.tec-it.com/barcode.ashx?data=123&code=Code128&translate-esc=on" alt="123">
-                            <div class="mt-1"><strong>123</strong></div>
+                            <img src="https://barcode.tec-it.com/barcode.ashx?data=1234&code=Code128&translate-esc=on" alt="1234">
+                            <div class="mt-1"><strong>1234</strong></div>
                         </div>
                         <small>SKU-BLUE-002</small>
                     </div>
@@ -257,7 +257,7 @@
 
         <!-- Returns Workflow Tests -->
         <div class="workflow-section">
-            <h3 class="text-danger">4. Returns Workflow (itm_ when no workflow active)</h3>
+            <h3 class="text-danger">4. Returns Workflow (item when no workflow active)</h3>
             <p>Start by scanning an item when no workflow is active, then scan destination location.</p>
             
             <div class="test-sequence">
@@ -296,7 +296,7 @@
                     <li>Try scanning <code>stc_2001</code> → Should show "Item doesn't exist in order"</li>
                     <li>Try scanning <code>loc_3001</code> → Should show "Item doesn't exist in order"</li>
                     <li>Try scanning <code>ord_1002</code> → Should show "Item doesn't exist in order"</li>
-                    <li>Only item barcodes (numbers) should work during picking</li>
+                    <li>Only item barcodes should work during picking</li>
                 </ol>
             </div>
         </div>
