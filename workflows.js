@@ -95,7 +95,7 @@ class WorkflowManager {
                 break;
             default:
                 // Any barcode without ord_, stc_, loc_ prefix is treated as item
-                this.startReturnsWorkflow(barcode);
+                this.showItemActionPrompt(barcode);
         }
     }
 
@@ -257,6 +257,183 @@ class WorkflowManager {
                 this.handleMoveDestinationScan(barcode);
                 break;
         }
+    }
+
+    /**
+     * Show item action prompt (returns or quantity update)
+     */
+    showItemActionPrompt(itemBarcode) {
+        const item = getItem(itemBarcode);
+        if (!item) {
+            this.showError('Item not found: ' + itemBarcode);
+            return;
+        }
+
+        this.workflowData = item;
+        this.showInfo(`Item scanned: ${item.name}`);
+        
+        const html = `
+            <div class="workflow-progress">
+                <h5>Item Action Required</h5>
+                <div class="alert alert-info">
+                    <strong>Item:</strong> ${item.name}<br>
+                    <strong>SKU:</strong> ${item.sku}<br>
+                    <strong>Description:</strong> ${item.description || 'N/A'}
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary" onclick="workflowManager.startReturnsWorkflow('${itemBarcode}')">
+                        Start Returns Process
+                    </button>
+                    <button class="btn btn-success" onclick="workflowManager.startQuantityUpdate('${itemBarcode}')">
+                        Update SKU Quantity
+                    </button>
+                    <button class="btn btn-secondary" onclick="workflowManager.resetWorkflow()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+        this.workflowContent.innerHTML = html;
+    }
+
+    /**
+     * Start quantity update workflow
+     */
+    startQuantityUpdate(itemBarcode) {
+        const item = getItem(itemBarcode);
+        if (!item) {
+            this.showError('Item not found: ' + itemBarcode);
+            return;
+        }
+
+        this.currentWorkflow = 'quantity_update';
+        this.workflowData = item;
+        this.workflowState = 'quantity_update';
+
+        this.showQuantityUpdateModal(item);
+    }
+
+    /**
+     * Show quantity update modal
+     */
+    showQuantityUpdateModal(item) {
+        const modalHtml = `
+            <div class="modal fade" id="quantityModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Quantity</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="workflowManager.resetWorkflow()"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <strong>Item:</strong> ${item.name}<br>
+                                <strong>SKU:</strong> ${item.sku}
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantity-input" class="form-label">New Quantity:</label>
+                                <input type="number" class="form-control" id="quantity-input" min="0" placeholder="Enter quantity" autofocus>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="workflowManager.resetWorkflow()">Cancel</button>
+                            <button type="button" class="btn btn-primary" onclick="workflowManager.confirmQuantityUpdate()">OK</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Remove existing modal if present
+        const existingModal = document.getElementById('quantityModal');
+        if (existingModal) {
+            existingModal.remove();
+        }
+        
+        // Add modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('quantityModal'));
+        modal.show();
+        
+        // Focus on input after modal is shown
+        document.getElementById('quantityModal').addEventListener('shown.bs.modal', function() {
+            document.getElementById('quantity-input').focus();
+        });
+        
+        // Handle Enter key
+        document.getElementById('quantity-input').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                workflowManager.confirmQuantityUpdate();
+            }
+        });
+    }
+
+    /**
+     * Confirm quantity update
+     */
+    confirmQuantityUpdate() {
+        const quantityInput = document.getElementById('quantity-input');
+        const quantity = parseInt(quantityInput.value);
+        
+        if (isNaN(quantity) || quantity < 0) {
+            this.showError('Please enter a valid quantity (0 or greater)');
+            return;
+        }
+        
+        // Show confirmation
+        this.showQuantityConfirmation(quantity);
+    }
+
+    /**
+     * Show quantity confirmation
+     */
+    showQuantityConfirmation(quantity) {
+        const item = this.workflowData;
+        
+        // Hide the quantity modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('quantityModal'));
+        if (modal) {
+            modal.hide();
+        }
+        
+        const html = `
+            <div class="workflow-progress">
+                <h5>Confirm Quantity Update</h5>
+                <div class="alert alert-warning">
+                    <strong>Item:</strong> ${item.name}<br>
+                    <strong>SKU:</strong> ${item.sku}<br>
+                    <strong>New Quantity:</strong> ${quantity}
+                </div>
+                <div class="d-grid gap-2">
+                    <button class="btn btn-success" onclick="workflowManager.applyQuantityUpdate(${quantity})">
+                        Confirm - Apply New Quantity
+                    </button>
+                    <button class="btn btn-secondary" onclick="workflowManager.resetWorkflow()">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+        this.workflowContent.innerHTML = html;
+        this.showCancelButton();
+    }
+
+    /**
+     * Apply quantity update
+     */
+    applyQuantityUpdate(quantity) {
+        const item = this.workflowData;
+        
+        // In a real system, this would update the database
+        // For now, we'll just show a success message
+        this.showSuccess(`Quantity updated for ${item.name} (${item.sku}): ${quantity}`);
+        
+        // Reset workflow after a delay
+        setTimeout(() => {
+            this.resetWorkflow();
+        }, 2000);
     }
 
     /**
@@ -730,6 +907,16 @@ class WorkflowManager {
         
         // Clear undo stack
         this.undoStack = [];
+        
+        // Close any open modals
+        const quantityModal = document.getElementById('quantityModal');
+        if (quantityModal) {
+            const modal = bootstrap.Modal.getInstance(quantityModal);
+            if (modal) {
+                modal.hide();
+            }
+            quantityModal.remove();
+        }
         
         this.hideCancelButton();
         this.hideUndoButton();
