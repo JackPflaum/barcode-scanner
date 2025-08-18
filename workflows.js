@@ -152,16 +152,29 @@ class WorkflowManager {
     }
 
     /**
-     * Mark item as out of stock
+     * Toggle item out of stock status
      */
-    markOutOfStock(itemBarcode) {
+    toggleOutOfStock(itemBarcode) {
         const orderItem = findItemInOrder(this.workflowData, itemBarcode);
-        if (orderItem) {
-            orderItem.out_of_stock = true;
-            this.showWarning(`${orderItem.name} marked as out of stock`);
-            this.renderPickingWorkflow();
-            this.checkOrderCompletion();
+        if (!orderItem) return;
+        
+        if (orderItem.out_of_stock) {
+            // Cancel out of stock
+            orderItem.out_of_stock = false;
+            this.showSuccess(`${orderItem.name} back in stock`);
+        } else {
+            // Mark as out of stock with confirmation
+            const confirmed = confirm(`Mark ${orderItem.name} as out of stock?`);
+            if (confirmed) {
+                orderItem.out_of_stock = true;
+                this.showWarning(`${orderItem.name} marked as out of stock`);
+            } else {
+                return;
+            }
         }
+        
+        this.renderPickingWorkflow();
+        this.checkOrderCompletion();
     }
 
     /**
@@ -510,10 +523,10 @@ class WorkflowManager {
                                 }
                             </div>
                         </div>
-                        ${!isOutOfStock && !isComplete ? 
+                        ${!isComplete ? 
                             `<div class="mt-2">
-                                <button class="btn btn-danger btn-sm" onclick="workflowManager.markOutOfStock('${item.barcode}')">
-                                    Out of Stock
+                                <button class="btn ${isOutOfStock ? 'btn-warning' : 'btn-danger'} btn-sm" onclick="workflowManager.toggleOutOfStock('${item.barcode}')">
+                                    ${isOutOfStock ? 'Cancel Out of Stock' : 'Out of Stock'}
                                 </button>
                             </div>` : ''
                         }
