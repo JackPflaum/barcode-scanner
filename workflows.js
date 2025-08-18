@@ -12,6 +12,10 @@ class WorkflowManager {
         this.moveSourceLocation = null;
         this.moveItem = null;
         
+        // Undo functionality
+        this.undoStack = [];
+        this.maxUndoSteps = 10;
+        
         this.initializeElements();
         this.setupEventListeners();
     }
@@ -23,6 +27,7 @@ class WorkflowManager {
         this.statusArea = document.getElementById('status-area');
         this.workflowContent = document.getElementById('workflow-content');
         this.cancelButton = document.getElementById('cancel-workflow');
+        this.undoButton = document.getElementById('undo-action');
     }
 
     /**
@@ -30,6 +35,9 @@ class WorkflowManager {
      */
     setupEventListeners() {
         this.cancelButton.addEventListener('click', () => this.cancelWorkflow());
+        if (this.undoButton) {
+            this.undoButton.addEventListener('click', () => this.undoLastAction());
+        }
     }
 
     /**
@@ -140,6 +148,13 @@ class WorkflowManager {
 
         // Increment picked quantity
         if (orderItem.quantity_picked < orderItem.quantity_needed) {
+            // Save state for undo
+            this.saveUndoState('pick_item', {
+                itemBarcode: barcode,
+                previousQuantity: orderItem.quantity_picked,
+                itemName: orderItem.name
+            });
+            
             orderItem.quantity_picked++;
             this.showSuccess(`Picked ${orderItem.name} (${orderItem.quantity_picked}/${orderItem.quantity_needed})`);
             this.renderPickingWorkflow();
@@ -432,6 +447,12 @@ class WorkflowManager {
      * Confirm location move and proceed to item scan
      */
     confirmLocationMove() {
+        // Save state for undo
+        this.saveUndoState('location_move_step', {
+            previousStep: 'confirm',
+            currentStep: 'scan_item'
+        });
+        
         this.moveWorkflowStep = 'scan_item';
         this.showInfo(`Scan the item you want to move from ${this.moveSourceLocation.location_id}`);
         
@@ -445,6 +466,7 @@ class WorkflowManager {
             </div>
         `;
         this.workflowContent.innerHTML = html;
+        this.showUndoButton();
     }
 
     /**
@@ -456,6 +478,14 @@ class WorkflowManager {
             this.showError('Item not found: ' + itemBarcode);
             return;
         }
+
+        // Save state for undo
+        this.saveUndoState('location_move_step', {
+            previousStep: 'scan_item',
+            currentStep: 'scan_destination',
+            itemBarcode: itemBarcode,
+            itemName: item.name
+        });
 
         this.moveItem = item;
         this.moveWorkflowStep = 'scan_destination';
@@ -521,6 +551,14 @@ class WorkflowManager {
             this.showError('Location not found: ' + locationBarcode);
             return;
         }
+
+        // Save state for undo
+        this.saveUndoState('returns_step', {
+            previousStep: 'scan_source',
+            currentStep: 'scan_destination',
+            sourceLocationBarcode: locationBarcode,
+            sourceLocationId: location.location_id
+        });
 
         this.moveSourceLocation = location;
         this.moveWorkflowStep = 'scan_destination';
@@ -601,6 +639,13 @@ class WorkflowManager {
         if (quantity !== null) {
             const count = parseInt(quantity);
             if (!isNaN(count) && count >= 0) {
+                // Save state for undo
+                this.saveUndoState('count_item', {
+                    itemBarcode: stockItem.barcode,
+                    previousQuantity: stockItem.counted_quantity,
+                    itemName: stockItem.name
+                });
+                
                 stockItem.counted_quantity = count;
                 this.showSuccess(`Counted ${stockItem.name}: ${count}`);
                 this.renderStockCountWorkflow();
@@ -706,7 +751,11 @@ class WorkflowManager {
         this.moveSourceLocation = null;
         this.moveItem = null;
         
+        // Clear undo stack
+        this.undoStack = [];
+        
         this.hideCancelButton();
+        this.hideUndoButton();
         this.workflowContent.innerHTML = '';
         document.getElementById('status-row').style.display = 'none';
     }
@@ -720,6 +769,21 @@ class WorkflowManager {
 
     hideCancelButton() {
         this.cancelButton.style.display = 'none';
+    }
+
+    /**
+     * Show/hide undo button
+     */
+    showUndoButton() {
+        if (this.undoButton && this.undoStack.length > 0) {
+            this.undoButton.style.display = 'block';
+        }
+    }
+
+    hideUndoButton() {
+        if (this.undoButton) {
+            this.undoButton.style.display = 'none';
+        }
     }
 
     /**
@@ -747,5 +811,102 @@ class WorkflowManager {
         this.statusArea.className = 'alert alert-info';
         this.statusArea.textContent = message;
         document.getElementById('status-row').style.display = 'block';
+    }
+
+    /**
+     * Undo functionality
+     */
+    saveUndoState(actionType, actionData) {
+        const undoState = {
+            actionType,
+            actionData,
+            workflowState: this.workflowState,
+            timestamp: Date.now()
+        };
+        
+        this.undoStack.push(undoState);
+        
+        // Limit undo stack size
+        if (this.undoStack.length > this.maxUndoSteps) {
+            this.undoStack.shift();
+        }
+        
+        this.showUndoButton();
+    }
+
+    undoLastAction() {
+        if (this.undoStack.length === 0) {
+            this.showWarning('No actions to undo');
+            return;
+        }
+
+        const lastAction = this.undoStack.pop();
+        
+        switch (lastAction.actionType) {
+            case 'pick_item':
+                this.undoPickItem(lastAction.actionData);
+                break;
+            case 'count_item':
+                this.undoCountItem(lastAction.actionData);
+                break;
+            case 'location_move_step':
+                this.undoLocationMoveStep(lastAction.actionData);
+                break;
+            case 'returns_step':
+                this.undoReturnsStep(lastAction.actionData);
+                break;
+            default:
+                this.showWarning('Cannot undo this action');
+                return;
+        }
+        
+        // Update undo button visibility
+        if (this.undoStack.length === 0) {
+            this.hideUndoButton();
+        }
+    }
+
+    undoPickItem(actionData) {
+        const orderItem = findItemInOrder(this.workflowData, actionData.itemBarcode);
+        if (orderItem) {
+            orderItem.quantity_picked = actionData.previousQuantity;
+            this.showSuccess(`Undid pick: ${actionData.itemName} (${orderItem.quantity_picked}/${orderItem.quantity_needed})`);
+            this.renderPickingWorkflow();
+        }
+    }
+
+    undoCountItem(actionData) {
+        const stockItem = findItemInStockCount(this.workflowData, actionData.itemBarcode);
+        if (stockItem) {
+            stockItem.counted_quantity = actionData.previousQuantity;
+            const countText = actionData.previousQuantity === null ? 'not counted' : actionData.previousQuantity;
+            this.showSuccess(`Undid count: ${actionData.itemName} (${countText})`);
+            this.renderStockCountWorkflow();
+        }
+    }
+
+    undoLocationMoveStep(actionData) {
+        this.moveWorkflowStep = actionData.previousStep;
+        
+        if (actionData.previousStep === 'confirm') {
+            this.moveItem = null;
+            this.showLocationMoveConfirmation(this.moveSourceLocation);
+            this.showSuccess('Undid to location confirmation');
+        } else if (actionData.previousStep === 'scan_item') {
+            this.moveItem = null;
+            this.confirmLocationMove();
+            this.showSuccess('Undid to item scan step');
+        }
+    }
+
+    undoReturnsStep(actionData) {
+        this.moveWorkflowStep = actionData.previousStep;
+        
+        if (actionData.previousStep === 'scan_source') {
+            this.moveSourceLocation = null;
+            this.showInfo(`Scan the location you are moving ${this.moveItem.name} from`);
+            this.renderReturnsWorkflow();
+            this.showSuccess('Undid to source location scan');
+        }
     }
 }
