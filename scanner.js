@@ -142,7 +142,17 @@ class BarcodeScanner {
         if (!this.barcodeDetector || !this.video || this.video.readyState !== 4) return;
 
         try {
-            const barcodes = await this.barcodeDetector.detect(this.video);
+            // Create canvas to capture current video frame
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = this.video.videoWidth;
+            canvas.height = this.video.videoHeight;
+            
+            // Draw current video frame to canvas
+            ctx.drawImage(this.video, 0, 0, canvas.width, canvas.height);
+            
+            // Detect barcodes from the canvas (which reflects the actual displayed frame)
+            const barcodes = await this.barcodeDetector.detect(canvas);
             
             if (barcodes.length > 0) {
                 const now = Date.now();
@@ -225,6 +235,9 @@ class BarcodeScanner {
             await this.videoTrack.applyConstraints({
                 advanced: [{ zoom: zoomLevel }]
             });
+            
+            // Small delay to ensure zoom is applied before next detection
+            await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
             console.error('Failed to apply zoom:', error);
         }
