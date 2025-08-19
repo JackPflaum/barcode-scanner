@@ -83,7 +83,8 @@ class BarcodeScanner {
                     facingMode: 'environment',
                     width: { ideal: 1280 },
                     height: { ideal: 720 },
-                    torch: false
+                    torch: false,
+                    focusMode: 'continuous'
                 }
             });
 
