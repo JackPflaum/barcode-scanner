@@ -77,7 +77,7 @@ class BarcodeScanner {
                 }
 
                 const caps = this.videoTrack.getCapabilities();
-                this.showScanSuccess('[focus] Capabilities:', caps);
+                this.showScanSuccess('[focus] Capabilities: ' + JSON.stringify(caps));
 
                 // Some browsers expose caps.focusMode as an array, some don’t expose it at all.
                 if (caps.focusMode && Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
@@ -89,7 +89,7 @@ class BarcodeScanner {
                     return false;
                 }
         } catch (err) {
-            this.showError('[focus] Failed to request continuous autofocus:', err);
+            this.showError('[focus] Failed to request continuous autofocus: ' + err);
             return false;
         }
     }
@@ -120,6 +120,7 @@ class BarcodeScanner {
             this.video.srcObject = this.stream;
             this.videoTrack = this.stream.getVideoTracks()[0];
 
+            this.showScanSuccess('[focus] Calling requestContinuousAutofocusOnce()');
             this.requestContinuousAutofocusOnce();
 
             // Setup camera controls
