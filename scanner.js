@@ -66,6 +66,35 @@ class BarcodeScanner {
     }
 
     /**
+     * Try to enable continuous autofocus if the device/browser exposes it.
+     * Safe: silently no-ops on unsupported devices.
+     */
+    async requestContinuousAutofocusOnce() {
+        try {
+                if (!this.videoTrack || typeof this.videoTrack.getCapabilities !== 'function') {
+                    this.showError('[focus] No capabilities API; skipping.');
+                    return false;
+                }
+
+                const caps = this.videoTrack.getCapabilities();
+                this.showScanSuccess('[focus] Capabilities:', caps);
+
+                // Some browsers expose caps.focusMode as an array, some don’t expose it at all.
+                if (caps.focusMode && Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
+                    await this.videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
+                    this.showScanSuccess('[focus] Requested continuous autofocus.');
+                return true;
+                } else {
+                    this.showError('[focus] focusMode not exposed or no "continuous" option; skipping.');
+                    return false;
+                }
+        } catch (err) {
+            this.showError('[focus] Failed to request continuous autofocus:', err);
+            return false;
+        }
+    }
+
+    /**
      * Start barcode scanner
      */
     async startScanner() {
@@ -90,6 +119,8 @@ class BarcodeScanner {
 
             this.video.srcObject = this.stream;
             this.videoTrack = this.stream.getVideoTracks()[0];
+
+            this.requestContinuousAutofocusOnce();
 
             // Setup camera controls
             this.setupCameraControls();
