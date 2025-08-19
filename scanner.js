@@ -13,6 +13,7 @@ class BarcodeScanner {
         this.lastScanTime = 0;
         this.scanCooldown = 1000; // Prevent duplicate scans
         this.onScanCallback = null;
+        this._scanCount = 0; // Track scans for focus nudging
         
         this.initializeElements();
         this.setupEventListeners();
@@ -65,88 +66,186 @@ class BarcodeScanner {
         }
     }
 
+    // /**
+    //  * Start barcode scanner
+    //  */
+    // async startScanner() {
+    //     if (this.isScanning || !this.checkBrowserSupport()) return;
+
+    //     try {
+    //         // Create barcode detector
+    //         this.barcodeDetector = new BarcodeDetector({
+    //             formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix']
+    //         });
+
+    //         // Get camera stream with torch capability
+    //         this.stream = await navigator.mediaDevices.getUserMedia({
+    //             video: {
+    //                 facingMode: 'environment',
+    //                 width: { ideal: 1280 },
+    //                 height: { ideal: 720 },
+    //                 torch: false,
+    //                 focusMode: 'continuous'
+    //             }
+    //         });
+
+    //         this.video.srcObject = this.stream;
+    //         this.videoTrack = this.stream.getVideoTracks()[0];
+
+    //         // Setup camera controls
+    //         // this.setupCameraControls();
+
+    //         // Wait for video to be ready before starting scan loop
+    //         this.video.addEventListener('loadedmetadata', () => {
+    //             this.scanInterval = setInterval(() => this.detectBarcodes(), 300);
+    //         }, { once: true });
+
+    //         this.isScanning = true;
+    //         this.toggleButton.textContent = 'Stop Camera';
+    //         this.cameraContainer.style.display = 'block';
+
+    //         console.log('Scanner started successfully');
+
+    //     } catch (error) {
+    //         console.error('Failed to start scanner:', error);
+    //         this.showError('Failed to access camera: ' + error.message);
+    //     }
+    // }
+
+
+
+
+
     /**
-     * Try to enable continuous autofocus if the device/browser exposes it.
-     * Safe: silently no-ops on unsupported devices.
-     */
-    async requestContinuousAutofocusOnce() {
-        try {
-                if (!this.videoTrack || typeof this.videoTrack.getCapabilities !== 'function') {
-                    console.log('[focus] No capabilities API; skipping.');
-                    return false;
-                }
+ * Start barcode scanner
+ */
+async startScanner() {
+    if (this.isScanning || !this.checkBrowserSupport()) return;
 
-                const caps = this.videoTrack.getCapabilities();
-                console.log('[focus] Capabilities:', caps);
+    try {
+        // 1. Create barcode detector
+        this.barcodeDetector = new BarcodeDetector({
+            formats: [
+                'code_128', 'code_39', 'ean_13', 'ean_8',
+                'upc_a', 'upc_e', 'qr_code', 'data_matrix'
+            ]
+        });
 
-                // Some browsers expose caps.focusMode as an array, some don’t expose it at all.
-                if (caps.focusMode && caps.focusMode.includes('manual') && caps.focusDistance) {
-                    await this.videoTrack.applyConstraints({ 
-                        advanced: [{ 
-                            focusMode: 'manual',
-                            focusDistance: 0.1
-                        }] 
-                    });
-                    console.log('[focus] Set manual focus to 10cm for barcode scanning');
-                return true;
-                } else {
-                    console.log('[focus] Manual focus not available');
-                    return false;
+        // 2. Get camera stream with continuous AF if supported
+        this.stream = await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                focusMode: 'continuous'
+            }
+        });
+
+        this.video.srcObject = this.stream;
+        this.videoTrack = this.stream.getVideoTracks()[0];
+
+        // 3. Nudge autofocus every few seconds
+        setInterval(async () => {
+            try {
+                await this.videoTrack.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
+                console.log("[focus] nudged continuous AF");
+            } catch (err) {
+                console.log("[focus] AF nudge failed:", err);
+            }
+        }, 3000);
+
+        // 4. Preprocess frame before detection
+        const preprocessFrame = (videoEl) => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = videoEl.videoWidth;
+            canvas.height = videoEl.videoHeight;
+
+            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            let data = imageData.data;
+
+            // Convert to grayscale
+            for (let i = 0; i < data.length; i += 4) {
+                const avg = (data[i] + data[i+1] + data[i+2]) / 3;
+                data[i] = data[i+1] = data[i+2] = avg;
+            }
+
+            // Simple sharpening kernel
+            const w = canvas.width;
+            const h = canvas.height;
+            const copy = new Uint8ClampedArray(data);
+
+            function idx(x, y) { return (y * w + x) * 4; }
+
+            for (let y = 1; y < h - 1; y++) {
+                for (let x = 1; x < w - 1; x++) {
+                    const i = idx(x, y);
+                    for (let c = 0; c < 3; c++) {
+                        const val =
+                            - copy[idx(x-1, y) + c] +
+                            - copy[idx(x, y-1) + c] +
+                            - copy[idx(x+1, y) + c] +
+                            - copy[idx(x, y+1) + c] +
+                            5 * copy[i + c];
+                        data[i + c] = Math.max(0, Math.min(255, val));
+                    }
                 }
-        } catch (err) {
-            console.error('[focus] Failed to request continuous autofocus:', err);
-            return false;
-        }
+            }
+
+            // Binarization (thresholding)
+            const threshold = 128;
+            for (let i = 0; i < data.length; i += 4) {
+                const v = data[i] > threshold ? 255 : 0;
+                data[i] = data[i+1] = data[i+2] = v;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            return canvas;
+        };
+
+        // 5. Detection loop
+        this.video.addEventListener('loadedmetadata', () => {
+            const scanLoop = async () => {
+                if (!this.isScanning) return;
+
+                if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+                    const frame = preprocessFrame(this.video);
+
+                    try {
+                        const barcodes = await this.barcodeDetector.detect(frame);
+                        if (barcodes.length) {
+                            console.log("✅ Detected:", barcodes);
+                            // You could handle results here instead of console.log
+                        }
+                    } catch (e) {
+                        console.warn("Detection error:", e);
+                    }
+                }
+                requestAnimationFrame(scanLoop);
+            };
+            scanLoop();
+        }, { once: true });
+
+        this.isScanning = true;
+        this.toggleButton.textContent = 'Stop Camera';
+        this.cameraContainer.style.display = 'block';
+
+        console.log('Scanner started successfully');
+
+    } catch (error) {
+        console.error('Failed to start scanner:', error);
+        this.showError('Failed to access camera: ' + error.message);
     }
+}
 
-    /**
-     * Start barcode scanner
-     */
-    async startScanner() {
-        if (this.isScanning || !this.checkBrowserSupport()) return;
 
-        try {
-            // Create barcode detector
-            this.barcodeDetector = new BarcodeDetector({
-                formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code', 'data_matrix']
-            });
 
-            // Get camera stream with torch capability
-            this.stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    torch: false,
-                    focusMode: 'continuous'
-                }
-            });
 
-            this.video.srcObject = this.stream;
-            this.videoTrack = this.stream.getVideoTracks()[0];
 
-            console.log('[focus] Calling requestContinuousAutofocusOnce()');
-            this.requestContinuousAutofocusOnce();
 
-            // Setup camera controls
-            this.setupCameraControls();
 
-            // Wait for video to be ready before starting scan loop
-            this.video.addEventListener('loadedmetadata', () => {
-                this.scanInterval = setInterval(() => this.detectBarcodes(), 300);
-            }, { once: true });
-
-            this.isScanning = true;
-            this.toggleButton.textContent = 'Stop Camera';
-            this.cameraContainer.style.display = 'block';
-
-            console.log('Scanner started successfully');
-
-        } catch (error) {
-            console.error('Failed to start scanner:', error);
-            this.showError('Failed to access camera: ' + error.message);
-        }
-    }
 
     /**
      * Stop barcode scanner
@@ -248,6 +347,21 @@ class BarcodeScanner {
                 }
 
                 console.log('Barcode detected in center area:', barcode.rawValue);
+                
+                // Focus nudging every 5 scans
+                if (this.videoTrack && this.videoTrack.getCapabilities().focusDistance) {
+                    this._scanCount++;
+                    if (this._scanCount % 5 === 0) {
+                        try {
+                            await this.videoTrack.applyConstraints({
+                                advanced: [{ focusMode: 'manual', focusDistance: 0.1 }]
+                            });
+                            console.log('Focus nudged after', this._scanCount, 'scans');
+                        } catch (e) {
+                            console.warn('Focus nudge failed:', e);
+                        }
+                    }
+                }
             }
         } catch (error) {
             // Silently handle detection errors to prevent flickering
