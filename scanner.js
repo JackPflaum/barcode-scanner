@@ -72,24 +72,29 @@ class BarcodeScanner {
     async requestContinuousAutofocusOnce() {
         try {
                 if (!this.videoTrack || typeof this.videoTrack.getCapabilities !== 'function') {
-                    this.showError('[focus] No capabilities API; skipping.');
+                    console.log('[focus] No capabilities API; skipping.');
                     return false;
                 }
 
                 const caps = this.videoTrack.getCapabilities();
-                this.showScanSuccess('[focus] Capabilities: ' + JSON.stringify(caps));
+                console.log('[focus] Capabilities:', caps);
 
                 // Some browsers expose caps.focusMode as an array, some don’t expose it at all.
-                if (caps.focusMode && Array.isArray(caps.focusMode) && caps.focusMode.includes('continuous')) {
-                    await this.videoTrack.applyConstraints({ advanced: [{ focusMode: 'continuous' }] });
-                    this.showScanSuccess('[focus] Requested continuous autofocus.');
+                if (caps.focusMode && caps.focusMode.includes('manual') && caps.focusDistance) {
+                    await this.videoTrack.applyConstraints({ 
+                        advanced: [{ 
+                            focusMode: 'manual',
+                            focusDistance: 0.1
+                        }] 
+                    });
+                    console.log('[focus] Set manual focus to 10cm for barcode scanning');
                 return true;
                 } else {
-                    this.showError('[focus] focusMode not exposed or no "continuous" option; skipping.');
+                    console.log('[focus] Manual focus not available');
                     return false;
                 }
         } catch (err) {
-            this.showError('[focus] Failed to request continuous autofocus: ' + err);
+            console.error('[focus] Failed to request continuous autofocus:', err);
             return false;
         }
     }
@@ -120,7 +125,7 @@ class BarcodeScanner {
             this.video.srcObject = this.stream;
             this.videoTrack = this.stream.getVideoTracks()[0];
 
-            this.showScanSuccess('[focus] Calling requestContinuousAutofocusOnce()');
+            console.log('[focus] Calling requestContinuousAutofocusOnce()');
             this.requestContinuousAutofocusOnce();
 
             // Setup camera controls
