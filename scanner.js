@@ -116,14 +116,14 @@ class BarcodeScanner {
 
 
 
-    /**
- * Start barcode scanner
+/**
+ * Start barcode scanner with center-area detection + preprocessing
  */
 async startScanner() {
     if (this.isScanning || !this.checkBrowserSupport()) return;
 
     try {
-        // 1. Create barcode detector
+        // 1️⃣ Create BarcodeDetector
         this.barcodeDetector = new BarcodeDetector({
             formats: [
                 'code_128', 'code_39', 'ean_13', 'ean_8',
@@ -131,107 +131,127 @@ async startScanner() {
             ]
         });
 
-        // 2. Get camera stream with continuous AF if supported
+        // 2️⃣ Get camera stream
         this.stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: 'environment',
                 width: { ideal: 1280 },
                 height: { ideal: 720 },
-                focusMode: 'continuous'
+                focusMode: 'continuous' // optional, will no-op if unsupported
             }
         });
 
         this.video.srcObject = this.stream;
         this.videoTrack = this.stream.getVideoTracks()[0];
 
-        // 3. Nudge autofocus every few seconds
+        // 3️⃣ Optional: focus nudging every few seconds (safe check)
         setInterval(async () => {
             try {
-                await this.videoTrack.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
-                console.log("[focus] nudged continuous AF");
+                const caps = this.videoTrack.getCapabilities();
+                if (caps.focusMode && caps.focusMode.includes("continuous")) {
+                    await this.videoTrack.applyConstraints({ advanced: [{ focusMode: "continuous" }] });
+                    console.log("[focus] nudged continuous AF");
+                }
             } catch (err) {
                 console.log("[focus] AF nudge failed:", err);
             }
         }, 3000);
 
-        // 4. Preprocess frame before detection
-        const preprocessFrame = (videoEl) => {
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            canvas.width = videoEl.videoWidth;
-            canvas.height = videoEl.videoHeight;
-
-            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-
-            let imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            let data = imageData.data;
-
-            // Convert to grayscale
-            for (let i = 0; i < data.length; i += 4) {
-                const avg = (data[i] + data[i+1] + data[i+2]) / 3;
-                data[i] = data[i+1] = data[i+2] = avg;
-            }
-
-            // Simple sharpening kernel
-            const w = canvas.width;
-            const h = canvas.height;
-            const copy = new Uint8ClampedArray(data);
-
-            function idx(x, y) { return (y * w + x) * 4; }
-
-            for (let y = 1; y < h - 1; y++) {
-                for (let x = 1; x < w - 1; x++) {
-                    const i = idx(x, y);
-                    for (let c = 0; c < 3; c++) {
-                        const val =
-                            - copy[idx(x-1, y) + c] +
-                            - copy[idx(x, y-1) + c] +
-                            - copy[idx(x+1, y) + c] +
-                            - copy[idx(x, y+1) + c] +
-                            5 * copy[i + c];
-                        data[i + c] = Math.max(0, Math.min(255, val));
-                    }
-                }
-            }
-
-            // Binarization (thresholding)
-            const threshold = 128;
-            for (let i = 0; i < data.length; i += 4) {
-                const v = data[i] > threshold ? 255 : 0;
-                data[i] = data[i+1] = data[i+2] = v;
-            }
-
-            ctx.putImageData(imageData, 0, 0);
-            return canvas;
-        };
-
-        // 5. Detection loop
+        // 4️⃣ Wait for video metadata and start detection loop
         this.video.addEventListener('loadedmetadata', () => {
             const scanLoop = async () => {
                 if (!this.isScanning) return;
+                if (this.video.readyState !== this.video.HAVE_ENOUGH_DATA) {
+                    requestAnimationFrame(scanLoop);
+                    return;
+                }
 
-                if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-                    const frame = preprocessFrame(this.video);
+                // ▪️ Crop to center area
+                const videoWidth = this.video.videoWidth;
+                const videoHeight = this.video.videoHeight;
+                const scanWidth = videoWidth * 0.4;
+                const scanHeight = videoHeight * 0.3;
+                const scanX = (videoWidth - scanWidth) / 2;
+                const scanY = (videoHeight - scanHeight) / 2;
 
-                    try {
-                        const barcodes = await this.barcodeDetector.detect(frame);
-                        if (barcodes.length) {
-                            console.log("✅ Detected:", barcodes);
-                            // You could handle results here instead of console.log
+                const canvas = document.createElement("canvas");
+                const ctx = canvas.getContext("2d");
+                canvas.width = scanWidth;
+                canvas.height = scanHeight;
+
+                ctx.drawImage(
+                    this.video,
+                    scanX, scanY, scanWidth, scanHeight,
+                    0, 0, scanWidth, scanHeight
+                );
+
+                // ▪️ Preprocess: grayscale + simple sharpening + threshold
+                const imageData = ctx.getImageData(0, 0, scanWidth, scanHeight);
+                const data = imageData.data;
+                const copy = new Uint8ClampedArray(data);
+
+                // Grayscale
+                for (let i = 0; i < data.length; i += 4) {
+                    const avg = (data[i] + data[i+1] + data[i+2]) / 3;
+                    data[i] = data[i+1] = data[i+2] = avg;
+                }
+
+                // Simple sharpening
+                function idx(x, y) { return (y * scanWidth + x) * 4; }
+                for (let y = 1; y < scanHeight - 1; y++) {
+                    for (let x = 1; x < scanWidth - 1; x++) {
+                        const i = idx(x, y);
+                        for (let c = 0; c < 3; c++) {
+                            const val =
+                                - copy[idx(x-1, y)+c] +
+                                - copy[idx(x+1, y)+c] +
+                                - copy[idx(x, y-1)+c] +
+                                - copy[idx(x, y+1)+c] +
+                                5 * copy[i + c];
+                            data[i + c] = Math.max(0, Math.min(255, val));
                         }
-                    } catch (e) {
-                        console.warn("Detection error:", e);
                     }
                 }
+
+                // Thresholding
+                const threshold = 128;
+                for (let i = 0; i < data.length; i += 4) {
+                    const v = data[i] > threshold ? 255 : 0;
+                    data[i] = data[i+1] = data[i+2] = v;
+                }
+
+                ctx.putImageData(imageData, 0, 0);
+
+                // ▪️ Detect barcodes in center-preprocessed canvas
+                try {
+                    const barcodes = await this.barcodeDetector.detect(canvas);
+                    if (barcodes.length > 0) {
+                        const now = Date.now();
+                        if (now - this.lastScanTime >= this.scanCooldown) {
+                            this.lastScanTime = now;
+
+                            const barcode = barcodes[0]; // pick first or implement center-priority
+                            this.showScanSuccess?.();
+                            this.showScanTargetDetection?.();
+                            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                            this.onScanCallback?.(barcode.rawValue);
+                            console.log("Detected barcode:", barcode.rawValue);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Detection error:", e);
+                }
+
+                // ▪️ Repeat
                 requestAnimationFrame(scanLoop);
             };
+
             scanLoop();
         }, { once: true });
 
         this.isScanning = true;
         this.toggleButton.textContent = 'Stop Camera';
         this.cameraContainer.style.display = 'block';
-
         console.log('Scanner started successfully');
 
     } catch (error) {
@@ -239,9 +259,6 @@ async startScanner() {
         this.showError('Failed to access camera: ' + error.message);
     }
 }
-
-
-
 
 
 
