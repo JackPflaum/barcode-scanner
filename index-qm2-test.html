@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Barcode Scanner - QM2 Test</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📱</text></svg>">
+    <meta name="theme-color" content="#007bff">
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                    <h4 class="mb-0">Warehouse Scanner - QM2 Test</h4>
+                    <div class="d-flex align-items-center gap-2">
+                        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#camera-settings">
+                            ⚙️
+                        </button>
+                        <button id="cancel-workflow" class="btn btn-danger btn-sm" style="display: none;">
+                            Cancel Workflow
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Area -->
+        <div class="row mt-3" id="status-row" style="display: none;">
+            <div class="col-12">
+                <div id="status-area" class="alert alert-info">
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Settings -->
+        <div class="collapse" id="camera-settings">
+            <div class="row mt-3">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="zoom-control" class="form-label">Zoom: <span id="zoom-value">1x</span></label>
+                                    <input type="range" class="form-range" id="zoom-control" min="1" max="10" step="0.1" value="1">
+                                </div>
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <button id="flashlight-toggle" class="btn btn-outline-warning btn-sm me-2">
+                                        💡 Flashlight
+                                    </button>
+                                    <button id="reset-zoom" class="btn btn-outline-secondary btn-sm">
+                                        Reset Zoom
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Camera Section -->
+        <div class="row">
+            <div class="col-12">
+                <div id="camera-container" style="display: none;">
+                    <div class="position-relative">
+                        <video id="video" class="w-100" autoplay muted playsinline style="max-height: 220px; object-fit: cover;"></video>
+                        <div class="scan-target" id="scan-target"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Content -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div id="workflow-content">
+                    <!-- Dynamic workflow content will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Manual Input -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h6>Manual Barcode Entry</h6>
+                        <div class="input-group">
+                            <input type="text" id="manual-input" class="form-control" placeholder="Enter barcode manually">
+                            <button id="manual-submit" class="btn btn-outline-primary">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Test Links -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="text-center">
+                    <a href="test-barcodes.html" class="btn btn-outline-info btn-sm me-2">
+                        📱 Test Barcodes
+                    </a>
+                    <button id="help-button" class="btn btn-outline-secondary btn-sm">
+                        ❓ Help
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Camera Toggle -->
+        <div class="fixed-bottom p-3">
+            <button id="mobile-camera-toggle" class="btn btn-primary w-100 btn-lg">
+                Start Camera
+            </button>
+        </div>
+
+        <!-- Help Modal -->
+        <div class="modal fade" id="helpModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Warehouse Scanner Help - QM2 Test</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h6>Testing QM2 Scanner Implementation:</h6>
+                        <p>This version uses the QM2 scanner with improvements:</p>
+                        <ul>
+                            <li>Larger crop area for 1D barcodes</li>
+                            <li>Fallback detection strategy</li>
+                            <li>Better error handling</li>
+                            <li>Visual debug feedback (blue box)</li>
+                        </ul>
+                        <h6>How to Use:</h6>
+                        <ol>
+                            <li>Click "Start Camera" to begin scanning</li>
+                            <li>Point camera at barcode to scan</li>
+                            <li>Watch for blue debug messages</li>
+                            <li>Compare with original scanner performance</li>
+                        </ol>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="data.js"></script>
+    <script src="qm2-scanner-test.js"></script>
+    <script src="workflows.js"></script>
+    <script>
+        // Modified app.js to use QM2 scanner
+        let scanner;
+        let workflowManager;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Initializing QM2 Scanner Test Application');
+            
+            // Initialize QM2 scanner instead of original
+            scanner = new QM2BarcodeScanner('video', 
+                (barcode) => {
+                    console.log('QM2 Barcode scanned:', barcode);
+                    if (workflowManager) {
+                        workflowManager.handleBarcodeScan(barcode);
+                    }
+                },
+                (error) => {
+                    console.error('QM2 Scanner error:', error);
+                    const statusArea = document.getElementById('status-area');
+                    if (statusArea) {
+                        statusArea.className = 'alert alert-danger';
+                        statusArea.textContent = error;
+                        document.getElementById('status-row').style.display = 'block';
+                    }
+                }
+            );
+            
+            workflowManager = new WorkflowManager();
+            
+            // Setup manual input
+            setupManualInput();
+            
+            // Setup help button
+            setupHelpButton();
+            
+            // Setup camera toggle
+            const toggleButton = document.getElementById('mobile-camera-toggle');
+            const cameraContainer = document.getElementById('camera-container');
+            
+            toggleButton.addEventListener('click', async () => {
+                if (scanner.isScanning) {
+                    scanner.stop();
+                    toggleButton.textContent = 'Start Camera';
+                    cameraContainer.style.display = 'none';
+                } else {
+                    await scanner.start();
+                    toggleButton.textContent = 'Stop Camera';
+                    cameraContainer.style.display = 'block';
+                }
+            });
+            
+            console.log('QM2 Scanner Test Application initialized successfully');
+        });
+
+        function setupHelpButton() {
+            const helpButton = document.getElementById('help-button');
+            if (helpButton) {
+                helpButton.addEventListener('click', function() {
+                    const helpModal = new bootstrap.Modal(document.getElementById('helpModal'));
+                    helpModal.show();
+                });
+            }
+        }
+
+        function setupManualInput() {
+            const manualInput = document.getElementById('manual-input');
+            const manualSubmit = document.getElementById('manual-submit');
+            
+            manualSubmit.addEventListener('click', function() {
+                const barcode = manualInput.value.trim();
+                if (barcode) {
+                    console.log('Manual barcode entry:', barcode);
+                    if (workflowManager) {
+                        workflowManager.handleBarcodeScan(barcode);
+                    }
+                    manualInput.value = '';
+                }
+            });
+            
+            manualInput.addEventListener('keypress', function(event) {
+                if (event.key === 'Enter') {
+                    manualSubmit.click();
+                }
+            });
+        }
+
+        window.addEventListener('error', function(event) {
+            console.error('Application error:', event.error);
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('Unhandled promise rejection:', event.reason);
+            event.preventDefault();
+        });
+    </script>
+</body>
+</html>
