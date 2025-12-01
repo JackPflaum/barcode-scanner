@@ -25,15 +25,43 @@ class QM2BarcodeScanner {
         }
 
         try {
+            // 1️⃣ Create BarcodeDetector
+            this.barcodeDetector = new BarcodeDetector({
+                formats: [
+                    'code_128', 'code_39', 'ean_13', 'ean_8',
+                    'upc_a', 'upc_e', 'qr_code', 'data_matrix'
+                ]
+            });
+            this.showDebug('QM2: BarcodeDetector created');
+
+            // 2️⃣ Get camera stream
             this.stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    focusMode: 'continuous' // safe, will no-op if unsupported
+                }
             });
 
             this.video.srcObject = this.stream;
-            this.barcodeDetector = new BarcodeDetector({
-                formats: ['code_128', 'code_39', 'ean_13', 'ean_8', 'upc_a', 'upc_e', 'qr_code']
-            });
-            this.showDebug('QM2: BarcodeDetector created');
+            this.videoTrack = this.stream.getVideoTracks()[0];
+
+            // 3️⃣ Focus nudge interval (safe)
+            this.focusInterval = setInterval(async () => {
+                if (!this.videoTrack) return;
+                try {
+                    const caps = this.videoTrack.getCapabilities();
+                    if (caps.focusMode && caps.focusMode.includes("continuous")) {
+                        await this.videoTrack.applyConstraints({
+                            advanced: [{ focusMode: "continuous" }]
+                        });
+                        this.showDebug("QM2: Focus nudged");
+                    }
+                } catch (err) {
+                    // Silent fail for focus nudging
+                }
+            }, 3000);
 
             this.video.addEventListener('loadedmetadata', () => {
                 this.showDebug(`QM2: Video ready: ${this.video.videoWidth}x${this.video.videoHeight}`);
@@ -50,84 +78,106 @@ class QM2BarcodeScanner {
 
     stop() {
         this.isScanning = false;
+        if (this.focusInterval) {
+            clearInterval(this.focusInterval);
+            this.focusInterval = null;
+        }
         if (this.stream) {
             this.stream.getTracks().forEach(track => track.stop());
             this.stream = null;
         }
+        this.videoTrack = null;
         this.video.srcObject = null;
     }
 
     async scanLoop() {
         if (!this.isScanning) return;
+        if (this.video.readyState !== this.video.HAVE_ENOUGH_DATA) {
+            requestAnimationFrame(() => this.scanLoop());
+            return;
+        }
 
         try {
-            // Check if video is ready
-            if (this.video.readyState < 2) {
-                requestAnimationFrame(() => this.scanLoop());
-                return;
-            }
-
-            // Show scan attempts every 30 loops
+            // Show scan attempts every 60 loops
             this.scanAttempts = (this.scanAttempts || 0) + 1;
-            if (this.scanAttempts % 30 === 0) {
-                this.showDebug(`QM2: Scanning... ${this.scanAttempts} attempts`);
+            if (this.scanAttempts % 60 === 0) {
+                this.showDebug(`QM2: Scanning... ${this.scanAttempts}`);
             }
 
-            let barcodes = [];
-            
-            // Try direct video detection first
-            try {
-                barcodes = await this.barcodeDetector.detect(this.video);
-                if (barcodes.length > 0) this.showDebug(`QM2 Direct: ${barcodes.length} found`);
-            } catch (directError) {
-                // Silent fail for direct detection
+            // ▪️ Crop to center area
+            const videoWidth = this.video.videoWidth;
+            const videoHeight = this.video.videoHeight;
+            const scanWidth = videoWidth * 0.4;
+            const scanHeight = videoHeight * 0.3;
+            const scanX = (videoWidth - scanWidth) / 2;
+            const scanY = (videoHeight - scanHeight) / 2;
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = scanWidth;
+            canvas.height = scanHeight;
+
+            ctx.drawImage(
+                this.video,
+                scanX, scanY, scanWidth, scanHeight,
+                0, 0, scanWidth, scanHeight
+            );
+
+            // ▪️ Preprocessing: grayscale + simple sharpening + threshold
+            const imageData = ctx.getImageData(0, 0, scanWidth, scanHeight);
+            const data = imageData.data;
+            const copy = new Uint8ClampedArray(data);
+
+            // Grayscale
+            for (let i = 0; i < data.length; i += 4) {
+                const avg = (data[i] + data[i+1] + data[i+2]) / 3;
+                data[i] = data[i+1] = data[i+2] = avg;
             }
-            
-            // Try larger crop area for 1D barcodes (they need more width)
-            if (barcodes.length === 0 && this.video.videoWidth > 0 && this.video.videoHeight > 0) {
-                try {
-                    const videoWidth = this.video.videoWidth;
-                    const videoHeight = this.video.videoHeight;
-                    const scanWidth = videoWidth * 0.8;  // Wider for 1D barcodes
-                    const scanHeight = videoHeight * 0.4; // Taller for 1D barcodes
-                    const scanX = (videoWidth - scanWidth) / 2;
-                    const scanY = (videoHeight - scanHeight) / 2;
 
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    if (ctx) {
-                        canvas.width = scanWidth;
-                        canvas.height = scanHeight;
-
-                        ctx.drawImage(
-                            this.video,
-                            scanX, scanY, scanWidth, scanHeight,
-                            0, 0, scanWidth, scanHeight
-                        );
-
-                        barcodes = await this.barcodeDetector.detect(canvas);
-                        if (barcodes.length > 0) this.showDebug(`QM2 Crop: ${barcodes.length} found`);
+            // Simple sharpening
+            function idx(x, y) { return (y * scanWidth + x) * 4; }
+            for (let y = 1; y < scanHeight - 1; y++) {
+                for (let x = 1; x < scanWidth - 1; x++) {
+                    const i = idx(x, y);
+                    for (let c = 0; c < 3; c++) {
+                        const val =
+                            - copy[idx(x-1, y)+c] +
+                            - copy[idx(x+1, y)+c] +
+                            - copy[idx(x, y-1)+c] +
+                            - copy[idx(x, y+1)+c] +
+                            5 * copy[i + c];
+                        data[i + c] = Math.max(0, Math.min(255, val));
                     }
-                } catch (cropError) {
-                    // Silent fail for crop detection
                 }
             }
-            
+
+            // Threshold
+            const threshold = 128;
+            for (let i = 0; i < data.length; i += 4) {
+                const v = data[i] > threshold ? 255 : 0;
+                data[i] = data[i+1] = data[i+2] = v;
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+
+            // ▪️ Detect barcodes
+            const barcodes = await this.barcodeDetector.detect(canvas);
             if (barcodes.length > 0) {
                 const now = Date.now();
-                const barcode = barcodes[0].rawValue;
-                this.showDebug(`QM2 SUCCESS: ${barcode}`);
-                
-                if (this.lastScan !== barcode || (now - this.lastScanTime) > this.cooldown) {
-                    this.lastScan = barcode;
+                if (now - this.lastScanTime >= this.cooldown) {
                     this.lastScanTime = now;
-                    this.onScan(barcode);
+
+                    const barcode = barcodes[0]; // or pick most centered
+                    if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+                    this.showDebug(`QM2 SUCCESS: ${barcode.rawValue}`);
+                    this.onScan(barcode.rawValue);
                 }
             }
         } catch (error) {
             this.showDebug(`QM2 Error: ${error.message}`);
         }
 
+        // ▪️ Repeat loop
         if (this.isScanning) {
             requestAnimationFrame(() => this.scanLoop());
         }
