@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scanner Comparison Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        
+        .scanner-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .scanner-box {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .scanner-box h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        video {
+            width: 100%;
+            max-width: 400px;
+            height: 300px;
+            background: #000;
+            border-radius: 5px;
+        }
+        
+        .controls {
+            margin-top: 15px;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            min-height: 100px;
+        }
+        
+        .scan-result {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .scan-result:last-child {
+            border-bottom: none;
+        }
+        
+        .timestamp {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .original-scanner {
+            border-left: 4px solid #28a745;
+        }
+        
+        .qm2-scanner {
+            border-left: 4px solid #007bff;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Barcode Scanner Comparison Test</h1>
+    
+    <div class="instructions">
+        <strong>Instructions:</strong>
+        <ul>
+            <li>Start both scanners and test with the same barcodes</li>
+            <li>Original scanner (green) uses the current /scanner implementation</li>
+            <li>QM2 scanner (blue) uses the QM2 implementation with improvements</li>
+            <li>Debug messages appear in colored boxes (red for original, blue for QM2)</li>
+            <li>Compare which one detects barcodes better</li>
+        </ul>
+    </div>
+    
+    <div class="scanner-container">
+        <!-- Original Scanner -->
+        <div class="scanner-box original-scanner">
+            <h2>Original Scanner (Current /scanner)</h2>
+            <video id="video-original" autoplay playsinline></video>
+            <div class="controls">
+                <button id="start-original">Start Original Scanner</button>
+                <button id="stop-original">Stop Original Scanner</button>
+            </div>
+            <div class="results" id="results-original">
+                <strong>Scan Results:</strong>
+                <div id="scans-original"></div>
+            </div>
+        </div>
+        
+        <!-- QM2 Scanner -->
+        <div class="scanner-box qm2-scanner">
+            <h2>QM2 Scanner (Improved Version)</h2>
+            <video id="video-qm2" autoplay playsinline></video>
+            <div class="controls">
+                <button id="start-qm2">Start QM2 Scanner</button>
+                <button id="stop-qm2">Stop QM2 Scanner</button>
+            </div>
+            <div class="results" id="results-qm2">
+                <strong>Scan Results:</strong>
+                <div id="scans-qm2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="scanner.js"></script>
+    <script src="qm2-scanner-test.js"></script>
+    <script>
+        // Global instances
+        let originalScanner;
+        let qm2Scanner;
+        
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Original scanner setup
+            originalScanner = new BarcodeScanner();
+            
+            // QM2 scanner setup
+            qm2Scanner = new QM2BarcodeScanner('video-qm2', 
+                (barcode) => addScanResult('qm2', barcode),
+                (error) => addScanResult('qm2', `ERROR: ${error}`)
+            );
+            
+            // Button handlers
+            document.getElementById('start-original').addEventListener('click', async () => {
+                // Manually start original scanner
+                if (originalScanner && !originalScanner.isScanning) {
+                    originalScanner.onScan((barcode) => addScanResult('original', barcode));
+                    await originalScanner.startScanner();
+                }
+            });
+            
+            document.getElementById('stop-original').addEventListener('click', () => {
+                if (originalScanner) {
+                    originalScanner.stopScanner();
+                }
+            });
+            
+            document.getElementById('start-qm2').addEventListener('click', async () => {
+                await qm2Scanner.start();
+            });
+            
+            document.getElementById('stop-qm2').addEventListener('click', () => {
+                qm2Scanner.stop();
+            });
+        });
+        
+        function addScanResult(scanner, barcode) {
+            const container = document.getElementById(`scans-${scanner}`);
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'scan-result';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            resultDiv.innerHTML = `
+                <div><strong>${barcode}</strong></div>
+                <div class="timestamp">${timestamp}</div>
+            `;
+            
+            container.insertBefore(resultDiv, container.firstChild);
+            
+            // Keep only last 10 results
+            while (container.children.length > 10) {
+                container.removeChild(container.lastChild);
+            }
+        }
+    </script>
+</body>
+</html>
